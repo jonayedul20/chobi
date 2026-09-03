@@ -14,7 +14,7 @@ export default function HeaderBar({ search = "", onSearch, showSearch = true }) 
     <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/60">
       <div className="flex items-center gap-3 px-4 md:px-8 py-3 max-w-[1600px] mx-auto">
         <Link to="/" className="font-display font-semibold text-xl tracking-tight text-foreground shrink-0">
-          Raw<span className="text-primary">Snap</span>
+          Cho<span className="text-primary">bi</span>
         </Link>
         {showSearch && (
           <div className="relative hidden md:block flex-1 max-w-sm ml-6">

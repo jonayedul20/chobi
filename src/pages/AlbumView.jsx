@@ -177,7 +177,7 @@ export default function AlbumView() {
               ← BACK TO ARCHIVE
             </Link>
             <h1 className="font-display font-extrabold uppercase text-white text-[clamp(28px,6vw,80px)] leading-[0.95] tracking-tight break-words">
-              RAW_SNAP <span className="text-[#CCFF00]">//</span> {album.title}
+              Chobi <span className="text-[#CCFF00]">//</span> {album.title}
             </h1>
             {album.description && (
               <p className="text-white/70 text-sm mt-2 font-body max-w-2xl">{album.description}</p>

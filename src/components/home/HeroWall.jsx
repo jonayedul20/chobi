@@ -37,7 +37,7 @@ export default function HeroWall({ album, photos, loading, onOpen, onDownloadAll
       <div className="bg-muted flex flex-col items-center">
         <div className="px-6 pt-16 md:pt-24 pb-12 text-center">
           <h1 className="font-display font-semibold tracking-tighter text-foreground text-[clamp(40px,6vw,80px)] leading-[1.05]">
-            RawSnap <span className="text-primary">Archive</span>
+            Chobi <span className="text-primary">Archive</span>
           </h1>
           <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
             Full-resolution photo storage. No quality loss. Ever.
