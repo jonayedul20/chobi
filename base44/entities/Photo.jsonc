@@ -1,0 +1,44 @@
+{
+  "name": "Photo",
+  "type": "object",
+  "properties": {
+    "album_id": {
+      "type": "string"
+    },
+    "file_uri": {
+      "type": "string"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "size_bytes": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "album_id",
+    "file_uri"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
