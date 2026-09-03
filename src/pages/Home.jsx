@@ -75,33 +75,32 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       <HeaderBar search={search} onSearch={setSearch} />
       <LandingHero />
-      <div className="flex flex-col lg:flex-row">
-        <div className="lg:w-[70%]">
-          <HeroWall
-            album={heroAlbum}
-            photos={heroPhotos}
-            loading={albums === null}
-            onOpen={setLightbox}
-            onDownloadAll={heroPhotos?.length ? downloadAll : undefined}
-          />
-        </div>
-        <aside className="lg:w-[30%] border-t lg:border-t-0 lg:border-l border-border">
-          <ArchiveSidebar albums={visible} user={user} />
-        </aside>
-      </div>
-      <section id="archive" className="border-t border-border">
-        <div className="px-4 md:px-8 pt-10 pb-2 flex items-end justify-between gap-4">
-          <h2 className="font-display font-semibold text-[clamp(28px,4vw,48px)] leading-none tracking-tighter">
+      <main className="mt-6 grid grid-cols-1 items-start gap-6 px-4 md:mt-[42px] md:px-[74px] lg:grid-cols-[1.76fr_.76fr]">
+        <HeroWall
+          album={heroAlbum}
+          photos={heroPhotos}
+          loading={albums === null}
+          onOpen={setLightbox}
+          onDownloadAll={heroPhotos?.length ? downloadAll : undefined}
+        />
+        <ArchiveSidebar albums={visible} user={user} />
+      </main>
+      <section
+        id="archive"
+        className="mx-4 mb-20 mt-6 rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] p-6 backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)] md:mx-[74px] md:mt-[42px] md:p-[34px]"
+      >
+        <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
+          <h2 className="font-display text-[36px] font-medium leading-[1.08] tracking-[-1.3px]">
             The archive
           </h2>
           <span className="text-sm text-muted-foreground">{filtered.length} active</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 p-4 md:p-8 pt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {albums === null && <p className="text-sm text-muted-foreground">Loading archive…</p>}
           {albums !== null && filtered.length === 0 && (
-            <div className="rounded-2xl border border-border p-6">
-              <p className="font-display font-semibold text-lg tracking-tight">No albums yet</p>
-              <p className="text-sm text-muted-foreground mt-1">
+            <div className="rounded-[17px] border border-dashed border-[#9bb19d] p-6">
+              <p className="font-semibold text-lg">No albums yet</p>
+              <p className="mt-1.5 text-sm text-muted-foreground">
                 {isAdmin
                   ? "Create your first album in the control room."
                   : "Check back soon — new albums drop here."}

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { cn } from "@/lib/utils";
 
 const fmt = d =>
   new Date(d).toLocaleString([], { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
-export default function LiveFeed({ albums }) {
+export default function LiveFeed({ albums, user }) {
   const [messages, setMessages] = useState(null);
 
   useEffect(() => {
@@ -24,27 +25,51 @@ export default function LiveFeed({ albums }) {
   }, []);
 
   const albumById = Object.fromEntries((albums ?? []).map(a => [a.id, a]));
+  const list = messages ?? [];
 
   return (
-    <div className="p-5 md:p-6">
-      <h2 className="font-display font-semibold text-lg tracking-tight">Live feed</h2>
-      <ul className="mt-4 space-y-3 max-h-96 overflow-auto">
+    <div>
+      <p className="mb-3 text-xs font-bold uppercase tracking-[2px] text-muted-foreground">
+        Real time
+      </p>
+      <h2 className="mb-[25px] font-display text-[36px] font-medium leading-[1.08] tracking-[-1.3px]">
+        Live feed
+      </h2>
+      <ul className="flex max-h-[26rem] flex-col gap-[21px] overflow-auto">
         {messages === null && <li className="text-sm text-muted-foreground">Loading…</li>}
-        {messages?.length === 0 && <li className="text-sm text-muted-foreground">No messages yet.</li>}
-        {(messages ?? []).map(m => (
-          <li key={m.id} className="border-l-2 border-border pl-3">
-            <div className="flex items-baseline gap-2">
-              <span className="text-xs font-medium">{m.author_name || "Guest"}</span>
-              <span className="text-[11px] text-muted-foreground">{fmt(m.created_date)}</span>
-            </div>
-            <p className="text-sm break-words">{m.text}</p>
-            {albumById[m.album_id] && (
-              <Link to={`/a/${albumById[m.album_id].slug}`} className="text-[11px] text-primary hover:underline">
-                {albumById[m.album_id].title}
-              </Link>
-            )}
-          </li>
-        ))}
+        {list.length === 0 && <li className="text-sm text-muted-foreground">No messages yet.</li>}
+        {list.map((m, i) => {
+          const album = albumById[m.album_id];
+          const notLast = i < list.length - 1;
+          return (
+            <li
+              key={m.id}
+              className={cn("relative pb-5", notLast && "border-b border-dashed border-[#9bb19d]")}
+            >
+              {notLast && (
+                <span
+                  aria-hidden
+                  className="absolute -bottom-[3px] left-[7px] h-[6px] w-[34px] -rotate-[4deg] border-t-2 border-[#6f8a73] opacity-70"
+                />
+              )}
+              <strong className="block text-[15px] font-semibold">{m.author_name || "Guest"}</strong>
+              <p className="mb-1.5 mt-1.5 break-words text-sm leading-[1.45] text-muted-foreground">
+                {m.text}
+              </p>
+              <div className="flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
+                <span>{fmt(m.created_date)}</span>
+                {album && (
+                  <Link
+                    to={`/a/${album.slug}`}
+                    className="font-semibold text-primary underline-offset-2 hover:underline"
+                  >
+                    {album.title}
+                  </Link>
+                )}
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

@@ -69,6 +69,32 @@ module.exports = {
   			mono: ['var(--font-mono)']
   		},
   		keyframes: {
+  			'rise': {
+  				from: {
+  					opacity: '0',
+  					transform: 'translateY(18px)'
+  				},
+  				to: {
+  					opacity: '1',
+  					transform: 'translateY(0)'
+  				}
+  			},
+  			'drift': {
+  				from: {
+  					transform: 'translate3d(-1%, 0, 0) scale(1.02)'
+  				},
+  				to: {
+  					transform: 'translate3d(1%, 1%, 0) scale(1.05)'
+  				}
+  			},
+  			'sage-pulse': {
+  				'0%, 100%': {
+  					boxShadow: '0 0 0 0 rgba(61,90,69,0)'
+  				},
+  				'50%': {
+  					boxShadow: '0 0 0 7px rgba(61,90,69,0.1)'
+  				}
+  			},
   			'accordion-down': {
   				from: {
   					height: '0'
@@ -87,6 +113,10 @@ module.exports = {
   			}
   		},
   		animation: {
+  			'sage-rise': 'rise 0.7s ease both',
+  			'sage-rise-slow': 'rise 0.8s 0.08s ease both',
+  			'sage-drift': 'drift 15s ease-in-out infinite alternate',
+  			'sage-pulse': 'sage-pulse 2.8s ease-in-out infinite',
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		}
