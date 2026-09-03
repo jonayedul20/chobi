@@ -16,21 +16,21 @@ export default function AdminPanel() {
   useEffect(load, []);
 
   return (
-    <div className="min-h-screen bg-[#FFFDF5] text-black">
+    <div className="min-h-screen bg-background text-foreground">
       <HeaderBar />
       <main className="max-w-6xl mx-auto p-4 md:p-8 space-y-10">
         <div>
-          <h1 className="font-display font-extrabold uppercase text-[clamp(36px,6vw,64px)] leading-none tracking-tight">
-            CONTROL ROOM
+          <h1 className="font-display font-semibold tracking-tighter text-[clamp(32px,5vw,56px)] leading-none">
+            Control room
           </h1>
-          <p className="font-mono text-xs text-[#777] uppercase mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Admin only · full-resolution uploads · unique share links
           </p>
         </div>
         <CreateAlbumForm onCreated={load} />
         <section>
-          <h2 className="font-display font-extrabold uppercase text-2xl mb-4 tracking-tight">
-            ALL ALBUMS ({albums?.length ?? "…"})
+          <h2 className="font-display font-semibold text-2xl mb-4 tracking-tight">
+            All albums ({albums?.length ?? "…"})
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {(albums ?? []).map(a => (

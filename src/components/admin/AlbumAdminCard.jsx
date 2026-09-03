@@ -9,8 +9,9 @@ import UploadPhotos from "@/components/admin/UploadPhotos";
 import EditAlbumDialog from "@/components/admin/EditAlbumDialog";
 import DeleteAlbumButton from "@/components/admin/DeleteAlbumButton";
 
+const chip = "inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground";
 const actionBtn =
-  "inline-flex items-center gap-1.5 border-2 border-black px-3 py-1.5 font-display font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors";
+  "inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors";
 
 export default function AlbumAdminCard({ album, onChanged }) {
   const { toast } = useToast();
@@ -30,50 +31,44 @@ export default function AlbumAdminCard({ album, onChanged }) {
 
   const copy = async () => {
     await navigator.clipboard.writeText(albumShareUrl(album.slug));
-    toast({ title: "SHARE LINK COPIED" });
+    toast({ title: "Share link copied" });
   };
 
   return (
-    <div className="border-2 border-black bg-white">
-      <div className="bg-black px-4 py-2 flex items-center justify-between gap-2">
-        <h3 className="font-display font-extrabold uppercase text-white truncate tracking-tight">{album.title}</h3>
-        <span className={`font-mono text-[10px] shrink-0 uppercase ${expired ? "text-[#777]" : "text-[#CCFF00]"}`}>
-          {expired ? "EXPIRED" : "ACTIVE"}
+    <div className="rounded-2xl bg-card border border-border/60 shadow-sm p-5 space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="font-display font-semibold text-lg tracking-tight truncate">{album.title}</h3>
+        <span className={`text-xs font-medium shrink-0 ${expired ? "text-muted-foreground" : "text-primary"}`}>
+          {expired ? "Expired" : "Active"}
         </span>
       </div>
-      <div className="p-4 space-y-3">
-        <div className="flex flex-wrap gap-2 items-center">
-          <CountdownBadge expiresAt={album.expires_at} />
-          <span className="inline-flex items-center gap-1 border-2 border-black px-3 py-1 font-mono text-xs uppercase">
-            {album.has_password ? <Lock className="w-3.5 h-3.5" /> : <LockOpen className="w-3.5 h-3.5" />}
-            {album.has_password ? "LOCKED" : "OPEN"}
-          </span>
-          <span className="border-2 border-black px-3 py-1 font-mono text-xs uppercase">
-            {album.is_public ? "PUBLIC" : "LINK ONLY"}
-          </span>
-          <span className="border-2 border-black px-3 py-1 font-mono text-xs uppercase">
-            FRAMES: {photoCount ?? "…"}
-          </span>
-        </div>
-        <p className="font-mono text-[10px] text-[#777] break-all">{albumShareUrl(album.slug)}</p>
-        <div className="flex flex-wrap gap-2">
-          <Link to={`/a/${album.slug}`} className={`${actionBtn} bg-[#CCFF00] text-black hover:text-[#CCFF00]`}>
-            <ExternalLink className="w-3.5 h-3.5" /> OPEN
-          </Link>
-          <button onClick={copy} className={actionBtn}>
-            <Copy className="w-3.5 h-3.5" /> COPY LINK
-          </button>
-          <button onClick={() => setUploading(u => !u)} className={actionBtn}>
-            <Upload className="w-3.5 h-3.5" /> PHOTOS
-          </button>
-          <button onClick={() => setEditing(true)} className={actionBtn}>
-            <Pencil className="w-3.5 h-3.5" /> EDIT
-          </button>
-          <DeleteAlbumButton album={album} onDeleted={onChanged} />
-        </div>
-        {uploading && <UploadPhotos albumId={album.id} onDone={loadCount} />}
-        {editing && <EditAlbumDialog album={album} onOpenChange={setEditing} onSaved={onChanged} />}
+      <div className="flex flex-wrap gap-2 items-center">
+        <CountdownBadge expiresAt={album.expires_at} />
+        <span className={chip}>
+          {album.has_password ? <Lock className="w-3.5 h-3.5" /> : <LockOpen className="w-3.5 h-3.5" />}
+          {album.has_password ? "Locked" : "Open"}
+        </span>
+        <span className={chip}>{album.is_public ? "Public" : "Link only"}</span>
+        <span className={chip}>{photoCount ?? "…"} photos</span>
       </div>
+      <p className="text-xs text-muted-foreground break-all">{albumShareUrl(album.slug)}</p>
+      <div className="flex flex-wrap gap-2">
+        <Link to={`/a/${album.slug}`} className={`${actionBtn} border-primary text-primary hover:bg-accent`}>
+          <ExternalLink className="w-3.5 h-3.5" /> Open
+        </Link>
+        <button onClick={copy} className={actionBtn}>
+          <Copy className="w-3.5 h-3.5" /> Copy link
+        </button>
+        <button onClick={() => setUploading(u => !u)} className={actionBtn}>
+          <Upload className="w-3.5 h-3.5" /> Photos
+        </button>
+        <button onClick={() => setEditing(true)} className={actionBtn}>
+          <Pencil className="w-3.5 h-3.5" /> Edit
+        </button>
+        <DeleteAlbumButton album={album} onDeleted={onChanged} />
+      </div>
+      {uploading && <UploadPhotos albumId={album.id} onDone={loadCount} />}
+      {editing && <EditAlbumDialog album={album} onOpenChange={setEditing} onSaved={onChanged} />}
     </div>
   );
 }

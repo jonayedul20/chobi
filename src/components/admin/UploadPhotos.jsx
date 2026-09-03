@@ -23,12 +23,12 @@ export default function UploadPhotos({ albumId, onDone }) {
         });
       }
       toast({
-        title: "UPLOAD COMPLETE",
+        title: "Upload complete",
         description: `${files.length} original file(s) stored at full resolution.`
       });
       onDone?.();
     } catch (err) {
-      toast({ title: "UPLOAD FAILED", description: err?.message || "Try again." });
+      toast({ title: "Upload failed", description: err?.message || "Try again." });
     } finally {
       setProgress(null);
       if (inputRef.current) inputRef.current.value = "";
@@ -36,7 +36,7 @@ export default function UploadPhotos({ albumId, onDone }) {
   };
 
   return (
-    <div className="border-2 border-dashed border-black bg-[#FFFDF5] p-4 space-y-2">
+    <div className="rounded-xl border border-dashed border-border bg-muted/40 p-4 space-y-2">
       <input
         ref={inputRef}
         type="file"
@@ -48,16 +48,16 @@ export default function UploadPhotos({ albumId, onDone }) {
       />
       <label
         htmlFor={`upload-${albumId}`}
-        className="flex items-center gap-2 cursor-pointer font-display font-bold uppercase text-xs bg-black text-[#CCFF00] px-4 py-2 inline-block hover:bg-[#CCFF00] hover:text-black transition-colors"
+        className="inline-flex items-center gap-2 cursor-pointer rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-medium hover:bg-primary/90 transition-colors"
       >
-        <UploadCloud className="w-4 h-4" /> SELECT ORIGINAL FILES
+        <UploadCloud className="w-4 h-4" /> Select original files
       </label>
       {progress && (
-        <p className="font-mono text-[10px] text-[#777] uppercase break-all">
+        <p className="text-xs text-muted-foreground break-all">
           Uploading {progress.done + 1}/{progress.total}: {progress.name} <Loader2 className="w-3 h-3 animate-spin inline" />
         </p>
       )}
-      <p className="font-mono text-[10px] text-[#777]">
+      <p className="text-xs text-muted-foreground">
         Files are stored privately and untouched — visitors receive signed full-resolution copies.
       </p>
     </div>

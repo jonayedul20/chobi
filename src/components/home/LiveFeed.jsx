@@ -5,11 +5,10 @@ import { base44 } from "@/api/base44Client";
 const fmt = d =>
   new Date(d).toLocaleString([], { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
-export default function LiveFeed({ albums, user }) {
+export default function LiveFeed({ albums }) {
   const [messages, setMessages] = useState(null);
 
   useEffect(() => {
-    if (!user) return;
     let on = true;
     base44.entities.ChatMessage.list("-created_date", 20)
       .then(list => on && setMessages(list ?? []))
@@ -22,26 +21,9 @@ export default function LiveFeed({ albums, user }) {
       on = false;
       if (unsub) unsub();
     };
-  }, [user?.id]);
+  }, []);
 
   const albumById = Object.fromEntries((albums ?? []).map(a => [a.id, a]));
-
-  if (!user) {
-    return (
-      <div className="p-5 md:p-6">
-        <h2 className="font-display font-semibold text-lg tracking-tight">Live feed</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Sign in with your Google account to follow the conversation.
-        </p>
-        <Link
-          to="/login"
-          className="mt-4 inline-block rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          Sign in with Google
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div className="p-5 md:p-6">

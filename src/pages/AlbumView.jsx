@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { ImageIcon, Loader2, X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
 import HeaderBar from "@/components/HeaderBar";
 import PhotoWall from "@/components/PhotoWall";
 import CommandStrip from "@/components/CommandStrip";
@@ -13,15 +12,21 @@ import { isAlbumExpired } from "@/lib/albums";
 
 function CenterBlock({ kicker, title, children }) {
   return (
-    <div className="min-h-screen bg-[#FFFDF5] flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <HeaderBar />
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="border-2 border-black bg-white max-w-md w-full">
-          <div className="bg-black px-5 py-3 font-display font-extrabold uppercase text-[#CCFF00] tracking-tight">{kicker}</div>
-          <div className="p-6 space-y-3">
-            <h1 className="font-display font-extrabold uppercase text-2xl tracking-tight leading-tight">{title}</h1>
-            {children}
-          </div>
+        <div className="w-full max-w-md rounded-3xl bg-card border border-border/60 shadow-sm p-10 text-center">
+          <p className="text-xs font-medium uppercase tracking-widest text-primary">{kicker}</p>
+          <h1 className="mt-3 font-display font-semibold tracking-tighter text-2xl md:text-3xl break-words">
+            {title}
+          </h1>
+          <div className="mt-4 space-y-4">{children}</div>
+          <Link
+            to="/"
+            className="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Back to archive
+          </Link>
         </div>
       </div>
     </div>
@@ -30,7 +35,6 @@ function CenterBlock({ kicker, title, children }) {
 
 export default function AlbumView() {
   const { slug } = useParams();
-  const { user } = useAuth();
   const [album, setAlbum] = useState(undefined);
   const [unlocked, setUnlocked] = useState(false);
   const [photos, setPhotos] = useState(null);
@@ -74,7 +78,7 @@ export default function AlbumView() {
         } else if (code === "WRONG_PASSWORD" || code === "PASSWORD_REQUIRED") {
           sessionStorage.removeItem(`rawsnap_pw_${slug}`);
           setUnlocked(false);
-          setGateError(code === "WRONG_PASSWORD" ? "WRONG PASSWORD — TRY AGAIN" : "");
+          setGateError(code === "WRONG_PASSWORD" ? "Wrong password — try again." : "");
         } else {
           setPhotos([]);
         }
@@ -85,7 +89,7 @@ export default function AlbumView() {
   }, [unlocked, album?.id]);
 
   useEffect(() => {
-    if (!user || !album) return;
+    if (!album) return;
     let on = true;
     base44.entities.ChatMessage.filter({ album_id: album.id }, "created_date", 500)
       .then(list => on && setMsgCount(list?.length ?? 0))
@@ -101,7 +105,7 @@ export default function AlbumView() {
       on = false;
       if (unsub) unsub();
     };
-  }, [user?.id, album?.id]);
+  }, [album?.id]);
 
   const unlock = async pw => {
     setBusy(true);
@@ -112,10 +116,10 @@ export default function AlbumView() {
         sessionStorage.setItem(`rawsnap_pw_${slug}`, pw);
         setUnlocked(true);
       } else {
-        setGateError("WRONG PASSWORD — TRY AGAIN");
+        setGateError("Wrong password — try again.");
       }
     } catch {
-      setGateError("SOMETHING WENT WRONG — TRY AGAIN");
+      setGateError("Something went wrong — try again.");
     } finally {
       setBusy(false);
     }
@@ -134,32 +138,30 @@ export default function AlbumView() {
     });
   };
 
-  const isAdmin = user?.role === "admin";
-
   if (album === undefined) {
     return (
-      <div className="min-h-screen bg-[#111111] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CCFF00]" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!album) {
     return (
-      <CenterBlock kicker="404 // NOT FOUND" title="NO SUCH ALBUM">
-        <p className="text-sm text-[#777] font-body">This link doesn't match any album. Check the share link and try again.</p>
-        <Link to="/" className="inline-block bg-[#CCFF00] text-black border-2 border-black px-4 py-2 font-display font-bold uppercase text-xs">BACK TO ARCHIVE</Link>
+      <CenterBlock kicker="404 · Not found" title="No such album">
+        <p className="text-sm text-muted-foreground">
+          This link doesn't match any album. Check the share link and try again.
+        </p>
       </CenterBlock>
     );
   }
 
   if (isAlbumExpired(album)) {
     return (
-      <CenterBlock kicker="EXPIRED" title={album.title}>
-        <p className="text-sm text-[#777] font-body">
+      <CenterBlock kicker="Expired" title={album.title}>
+        <p className="text-sm text-muted-foreground">
           This album's share window has closed. The link has expired — ask the owner to reactivate it.
         </p>
-        <Link to="/" className="inline-block bg-[#CCFF00] text-black border-2 border-black px-4 py-2 font-display font-bold uppercase text-xs">BACK TO ARCHIVE</Link>
       </CenterBlock>
     );
   }
@@ -169,54 +171,48 @@ export default function AlbumView() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFDF5] flex flex-col lg:flex-row">
-      <div className="lg:w-[70%] bg-[#111111] flex flex-col min-h-screen pb-14 lg:pb-0">
-        <div className="relative">
-          <div className="absolute top-0 left-0 right-0 z-10 p-4 md:p-6 pointer-events-none bg-gradient-to-b from-black/80 to-transparent">
-            <Link to="/" className="font-mono text-[10px] text-[#CCFF00] hover:underline pointer-events-auto block mb-1">
-              ← BACK TO ARCHIVE
-            </Link>
-            <h1 className="font-display font-extrabold uppercase text-white text-[clamp(28px,6vw,80px)] leading-[0.95] tracking-tight break-words">
-              Chobi <span className="text-[#CCFF00]">//</span> {album.title}
-            </h1>
-            {album.description && (
-              <p className="text-white/70 text-sm mt-2 font-body max-w-2xl">{album.description}</p>
-            )}
-          </div>
-          {photos === null ? (
-            <div className="min-h-[60vh] flex items-center justify-center">
-              <Loader2 className="w-8 h-8 animate-spin text-[#CCFF00]" />
-            </div>
-          ) : photos.length === 0 ? (
-            <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3 pt-32 px-4 text-center">
-              <p className="font-display font-extrabold uppercase text-white text-xl tracking-tight">NO FRAMES YET</p>
-              <p className="font-mono text-xs text-[#777] uppercase">
-                {isAdmin ? "Upload originals from the control room." : "Check back soon."}
-              </p>
-              {isAdmin && (
-                <Link to="/admin" className="bg-[#CCFF00] text-black px-4 py-2 font-display font-bold uppercase text-xs">
-                  CONTROL ROOM →
-                </Link>
-              )}
-            </div>
-          ) : (
-            <div className="pt-28 md:pt-36">
-              <PhotoWall photos={photos} onOpen={setLightbox} />
-            </div>
+    <div className="min-h-screen bg-background flex flex-col lg:flex-row">
+      <div className="lg:w-[70%] flex flex-col min-h-screen pb-14 lg:pb-0">
+        <div className="bg-muted px-6 py-12 md:py-14 text-center border-b border-border/50">
+          <Link to="/" className="text-xs text-primary hover:underline">
+            ← Back to archive
+          </Link>
+          <h1 className="mt-3 font-display font-semibold tracking-tighter text-foreground text-[clamp(30px,5vw,56px)] leading-[1.05] break-words">
+            {album.title}
+          </h1>
+          {album.description && (
+            <p className="mt-3 text-base text-muted-foreground max-w-2xl mx-auto">{album.description}</p>
           )}
         </div>
+        {photos === null ? (
+          <div className="min-h-[50vh] flex items-center justify-center">
+            <Loader2 className="w-7 h-7 animate-spin text-primary" />
+          </div>
+        ) : photos.length === 0 ? (
+          <div className="min-h-[40vh] flex flex-col items-center justify-center gap-3 px-4 py-16 text-center">
+            <div className="w-14 h-14 rounded-full bg-muted border border-border/60 flex items-center justify-center">
+              <ImageIcon className="w-6 h-6 text-muted-foreground" />
+            </div>
+            <p className="font-display font-semibold text-xl tracking-tight">Photos coming soon</p>
+            <p className="text-sm text-muted-foreground">
+              This album hasn't been published yet. Check back shortly.
+            </p>
+          </div>
+        ) : (
+          <div className="px-4 md:px-8 py-10">
+            <PhotoWall photos={photos} onOpen={setLightbox} />
+          </div>
+        )}
         <div className="mt-auto">
           <CommandStrip album={album} showViewLink={false} onDownloadAll={photos?.length ? downloadAll : undefined} />
         </div>
       </div>
 
-      <aside className="hidden lg:flex lg:w-[30%] border-l-2 border-black flex-col min-h-screen">
-        <div className="bg-black px-4 py-3 border-b-2 border-black">
-          <h2 className="font-display font-extrabold uppercase text-[#CCFF00] tracking-tight break-words">
-            GROUP_CHAT // {album.title}
-          </h2>
-          <p className="font-mono text-[10px] text-white/60 uppercase mt-1">
-            Google sign-in required · live for everyone with the link
+      <aside className="hidden lg:flex lg:w-[30%] border-l border-border flex-col min-h-screen">
+        <div className="px-5 py-4 border-b border-border">
+          <h2 className="font-display font-semibold text-lg tracking-tight">Discussion</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Live for everyone with the link — just add your name to join.
           </p>
         </div>
         <div className="flex-1 min-h-0">
@@ -224,32 +220,32 @@ export default function AlbumView() {
         </div>
       </aside>
 
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-black border-t-2 border-[#CCFF00] grid grid-cols-2 h-14">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border grid grid-cols-2 h-14">
         <button
           onClick={() => setChatOpen(true)}
-          className="text-[#CCFF00] font-display font-bold uppercase text-xs flex items-center justify-center gap-2 px-2"
+          className="text-primary text-sm font-medium flex items-center justify-center gap-2 px-2"
         >
-          SLIDE CHAT {msgCount != null ? `(${msgCount})` : ""}
+          Chat {msgCount != null ? `(${msgCount})` : ""}
         </button>
         <button
           onClick={downloadAll}
           disabled={!photos?.length}
-          className="bg-[#CCFF00] text-black font-display font-bold uppercase text-xs flex items-center justify-center px-2 disabled:opacity-50"
+          className="border-l border-border text-sm font-medium flex items-center justify-center px-2 disabled:opacity-50"
         >
-          DOWNLOAD ALL (ORIGINAL)
+          Download all
         </button>
       </div>
 
       {chatOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black/60 flex items-end" onClick={() => setChatOpen(false)}>
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/40 flex items-end" onClick={() => setChatOpen(false)}>
           <div
-            className="w-full h-[80vh] bg-[#FFFDF5] border-t-2 border-black flex flex-col"
+            className="w-full h-[80vh] bg-background border-t border-border rounded-t-3xl flex flex-col"
             onClick={e => e.stopPropagation()}
           >
-            <div className="bg-black px-4 py-3 flex items-center justify-between">
-              <h2 className="font-display font-extrabold uppercase text-[#CCFF00] tracking-tight">GROUP_CHAT</h2>
-              <button onClick={() => setChatOpen(false)} className="font-mono text-xs text-white underline">
-                CLOSE
+            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+              <h2 className="font-display font-semibold text-lg tracking-tight">Discussion</h2>
+              <button onClick={() => setChatOpen(false)} aria-label="Close chat" className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-5 h-5" />
               </button>
             </div>
             <div className="flex-1 min-h-0">

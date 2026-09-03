@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -31,11 +32,11 @@ export default function EditAlbumDialog({ album, onOpenChange, onSaved }) {
       else payload.expires_at = new Date(Date.now() + EXPIRY_HOURS[expiry] * 3600000).toISOString();
 
       await base44.functions.invoke("updateAlbum", payload);
-      toast({ title: "ALBUM UPDATED" });
+      toast({ title: "Album updated" });
       onOpenChange(false);
       onSaved?.();
     } catch (err) {
-      toast({ title: "UPDATE FAILED", description: err?.response?.data?.error || "Try again." });
+      toast({ title: "Update failed", description: err?.response?.data?.error || "Try again." });
     } finally {
       setBusy(false);
     }
@@ -43,58 +44,62 @@ export default function EditAlbumDialog({ album, onOpenChange, onSaved }) {
 
   return (
     <Dialog open onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-none border-2 border-black bg-[#FFFDF5] max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display font-extrabold uppercase tracking-tight">
-            EDIT // {album.title}
+          <DialogTitle className="font-display font-semibold tracking-tight">
+            Edit album
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="edit-title" className="font-display font-bold uppercase text-xs">TITLE</Label>
-            <Input id="edit-title" value={title} onChange={e => setTitle(e.target.value)} className="rounded-none border-2 border-black font-display font-bold uppercase" />
+            <Label htmlFor="edit-title">Title</Label>
+            <Input id="edit-title" value={title} onChange={e => setTitle(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="edit-desc" className="font-display font-bold uppercase text-xs">DESCRIPTION</Label>
-            <Input id="edit-desc" value={description} onChange={e => setDescription(e.target.value)} className="rounded-none border-2 border-black font-body" />
+            <Label htmlFor="edit-desc">Description</Label>
+            <Input id="edit-desc" value={description} onChange={e => setDescription(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="edit-password" className="font-display font-bold uppercase text-xs">NEW PASSWORD</Label>
-            <Input id="edit-password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="LEAVE BLANK = KEEP CURRENT" className="rounded-none border-2 border-black font-mono" />
+            <Label htmlFor="edit-password">New password</Label>
+            <Input
+              id="edit-password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Leave blank to keep current"
+            />
             <div className="flex items-center gap-2 pt-1">
               <Switch id="edit-remove-password" checked={removePassword} onCheckedChange={setRemovePassword} />
-              <Label htmlFor="edit-remove-password" className="font-display font-bold uppercase text-xs">REMOVE PASSWORD</Label>
+              <Label htmlFor="edit-remove-password" className="text-sm font-normal text-muted-foreground">
+                Remove password
+              </Label>
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label className="font-display font-bold uppercase text-xs">EXPIRY</Label>
+            <Label>Expiry</Label>
             <Select value={expiry} onValueChange={setExpiry}>
-              <SelectTrigger className="rounded-none border-2 border-black font-mono text-xs h-9">
+              <SelectTrigger className="text-sm">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-none border-2 border-black">
+              <SelectContent>
                 {EXPIRY_OPTIONS.map(o => (
-                  <SelectItem key={o.value} value={o.value} className="font-mono text-xs uppercase rounded-none">{o.label}</SelectItem>
+                  <SelectItem key={o.value} value={o.value} className="text-sm">{o.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             {expiry === "custom" && (
-              <Input type="datetime-local" value={customDate} onChange={e => setCustomDate(e.target.value)} className="rounded-none border-2 border-black font-mono text-xs" />
+              <Input type="datetime-local" value={customDate} onChange={e => setCustomDate(e.target.value)} className="text-sm" />
             )}
           </div>
           <div className="flex items-center gap-2">
             <Switch id="edit-public" checked={isPublic} onCheckedChange={setIsPublic} />
-            <Label htmlFor="edit-public" className="font-display font-bold uppercase text-xs">
-              {isPublic ? "PUBLIC ON HOME" : "LINK ONLY"}
+            <Label htmlFor="edit-public" className="text-sm font-normal text-muted-foreground">
+              {isPublic ? "Public on home" : "Link only"}
             </Label>
           </div>
-          <button
-            onClick={save}
-            disabled={busy || !title.trim()}
-            className="w-full bg-[#CCFF00] text-black border-2 border-black px-4 py-2 font-display font-bold uppercase text-xs disabled:opacity-50 hover:bg-black hover:text-[#CCFF00] transition-colors"
-          >
-            {busy ? "SAVING…" : "SAVE CHANGES"}
-          </button>
+          <Button onClick={save} disabled={busy || !title.trim()} className="w-full rounded-full h-11 font-medium">
+            {busy ? "Saving…" : "Save changes"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

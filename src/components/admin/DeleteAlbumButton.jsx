@@ -31,29 +31,27 @@ export default function DeleteAlbumButton({ album, onDeleted }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 border-2 border-black px-3 py-1.5 font-display font-bold uppercase text-xs hover:bg-red-600 hover:border-red-600 hover:text-white transition-colors">
-          <Trash2 className="w-3.5 h-3.5" /> DELETE
+        <button className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 hover:border-destructive/40 transition-colors">
+          <Trash2 className="w-3.5 h-3.5" /> Delete
         </button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="rounded-none border-2 border-black bg-[#FFFDF5] max-w-md">
+      <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle className="font-display font-extrabold uppercase tracking-tight">
-            DELETE ALBUM?
+          <AlertDialogTitle className="font-display font-semibold tracking-tight">
+            Delete album?
           </AlertDialogTitle>
-          <AlertDialogDescription className="font-body">
+          <AlertDialogDescription>
             "{album.title}" and all its photos and chat history will be permanently deleted. This cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-none border-2 border-black font-display font-bold uppercase">
-            CANCEL
-          </AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={remove}
             disabled={busy}
-            className="rounded-none bg-red-600 text-white font-display font-bold uppercase hover:bg-black"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {busy ? "DELETING…" : "DELETE FOREVER"}
+            {busy ? "Deleting…" : "Delete forever"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

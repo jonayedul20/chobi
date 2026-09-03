@@ -34,7 +34,7 @@ export default function CreateAlbumForm({ onCreated }) {
         is_public: isPublic,
         expires_at
       });
-      toast({ title: "ALBUM CREATED", description: "A unique share link has been generated." });
+      toast({ title: "Album created", description: "A unique share link has been generated." });
       setTitle("");
       setDescription("");
       setPassword("");
@@ -42,61 +42,59 @@ export default function CreateAlbumForm({ onCreated }) {
       setExpiry("7d");
       onCreated?.();
     } catch (err) {
-      toast({ title: "CREATE FAILED", description: err?.response?.data?.error || "Something went wrong." });
+      toast({ title: "Create failed", description: err?.response?.data?.error || "Something went wrong." });
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <form onSubmit={submit} className="border-2 border-black bg-white">
-      <div className="bg-black px-4 py-3 border-b-2 border-black">
-        <h2 className="font-display font-extrabold uppercase text-[#CCFF00] tracking-tight">NEW ALBUM</h2>
-      </div>
-      <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={submit} className="rounded-2xl bg-card border border-border/60 shadow-sm p-6 md:p-8">
+      <h2 className="font-display font-semibold text-xl tracking-tight">New album</h2>
+      <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="album-title" className="font-display font-bold uppercase text-xs">TITLE *</Label>
-          <Input id="album-title" value={title} onChange={e => setTitle(e.target.value)} placeholder="WEDDING // 09.2026" className="rounded-none border-2 border-black font-display font-bold uppercase" />
+          <Label htmlFor="album-title">Title</Label>
+          <Input id="album-title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Wedding · September 2026" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="album-password" className="font-display font-bold uppercase text-xs">PASSWORD (OPTIONAL)</Label>
-          <Input id="album-password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="LEAVE BLANK = NO PASSWORD" className="rounded-none border-2 border-black font-mono" />
+          <Label htmlFor="album-password">Password (optional)</Label>
+          <Input id="album-password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Leave blank for open access" />
         </div>
         <div className="space-y-1.5 md:col-span-2">
-          <Label htmlFor="album-desc" className="font-display font-bold uppercase text-xs">DESCRIPTION</Label>
-          <Input id="album-desc" value={description} onChange={e => setDescription(e.target.value)} placeholder="WHAT'S INSIDE" className="rounded-none border-2 border-black font-body" />
+          <Label htmlFor="album-desc">Description</Label>
+          <Input id="album-desc" value={description} onChange={e => setDescription(e.target.value)} placeholder="What's inside" />
         </div>
         <div className="space-y-1.5">
-          <Label className="font-display font-bold uppercase text-xs">EXPIRY</Label>
+          <Label>Expiry</Label>
           <Select value={expiry} onValueChange={setExpiry}>
-            <SelectTrigger className="rounded-none border-2 border-black font-mono text-xs h-9">
+            <SelectTrigger className="text-sm">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="rounded-none border-2 border-black">
+            <SelectContent>
               {EXPIRY_OPTIONS.map(o => (
-                <SelectItem key={o.value} value={o.value} className="font-mono text-xs uppercase rounded-none">{o.label}</SelectItem>
+                <SelectItem key={o.value} value={o.value} className="text-sm">{o.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         {expiry === "custom" ? (
           <div className="space-y-1.5">
-            <Label htmlFor="album-expiry" className="font-display font-bold uppercase text-xs">EXPIRES AT</Label>
-            <Input id="album-expiry" type="datetime-local" value={customDate} onChange={e => setCustomDate(e.target.value)} className="rounded-none border-2 border-black font-mono text-xs" />
+            <Label htmlFor="album-expiry">Expires at</Label>
+            <Input id="album-expiry" type="datetime-local" value={customDate} onChange={e => setCustomDate(e.target.value)} className="text-sm" />
           </div>
         ) : (
-          <div className="space-y-1.5 flex items-end">
+          <div className="flex items-end">
             <div className="flex items-center gap-2 pb-2">
               <Switch id="album-public" checked={isPublic} onCheckedChange={setIsPublic} />
-              <Label htmlFor="album-public" className="font-display font-bold uppercase text-xs">
-                {isPublic ? "PUBLIC ON HOME" : "LINK ONLY"}
+              <Label htmlFor="album-public" className="text-sm font-normal text-muted-foreground">
+                {isPublic ? "Public on home" : "Link only"}
               </Label>
             </div>
           </div>
         )}
         <div className="md:col-span-2">
-          <Button type="submit" disabled={!title.trim() || busy} className="w-full rounded-none bg-[#CCFF00] text-black hover:bg-black hover:text-[#CCFF00] font-display font-bold uppercase border-2 border-black">
-            {busy ? "CREATING…" : "+ CREATE ALBUM"}
+          <Button type="submit" disabled={!title.trim() || busy} className="w-full rounded-full h-11 font-medium">
+            {busy ? "Creating…" : "Create album"}
           </Button>
         </div>
       </div>

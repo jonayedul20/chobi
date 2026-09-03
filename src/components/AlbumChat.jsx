@@ -1,15 +1,20 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Send } from "lucide-react";
+import { Send, UserRound } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const NAME_KEY = "chobi_display_name";
 
 const fmt = d =>
   new Date(d).toLocaleString([], { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 export default function AlbumChat({ albumId }) {
   const { user } = useAuth();
+  const [guestName, setGuestName] = useState(() => localStorage.getItem(NAME_KEY) || "");
+  const [nameDraft, setNameDraft] = useState("");
   const [messages, setMessages] = useState(null);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -49,16 +54,24 @@ export default function AlbumChat({ albumId }) {
     bottomRef.current?.scrollIntoView({ block: "end" });
   }, [sorted.length]);
 
+  const saveName = e => {
+    e.preventDefault();
+    const n = nameDraft.trim();
+    if (!n) return;
+    localStorage.setItem(NAME_KEY, n);
+    setGuestName(n);
+  };
+
   const send = async e => {
     e.preventDefault();
     const t = text.trim();
     if (!t || sending) return;
     setSending(true);
     try {
-      await base44.entities.ChatMessage.create({
+      await base44.functions.invoke("postChatMessage", {
         album_id: albumId,
         text: t,
-        author_name: user?.full_name || user?.email || "GUEST"
+        author_name: user?.full_name || user?.email || guestName || "Guest"
       });
       setText("");
     } catch {
@@ -68,54 +81,74 @@ export default function AlbumChat({ albumId }) {
     }
   };
 
-  if (!user) {
+  if (!user && !guestName) {
     return (
-      <div className="p-5">
-        <p className="font-display font-extrabold uppercase text-lg leading-tight tracking-tight">MEMBERS-ONLY CHAT</p>
-        <p className="mt-2 text-sm text-[#777] font-body">
-          Sign in with your Google account to join this album's group chat.
+      <div className="p-6 flex flex-col items-center text-center">
+        <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
+          <UserRound className="w-5 h-5 text-primary" />
+        </div>
+        <h3 className="mt-4 font-display font-semibold text-lg tracking-tight">Join the conversation</h3>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Tell us your name to start chatting — no account needed.
         </p>
-        <Link
-          to={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}
-          className="mt-4 inline-block bg-[#CCFF00] text-black border-2 border-black px-4 py-2 font-display font-bold uppercase text-xs hover:bg-black hover:text-[#CCFF00] transition-colors"
-        >
-          SIGN IN WITH GOOGLE
-        </Link>
+        <form onSubmit={saveName} className="mt-5 w-full max-w-xs space-y-3">
+          <Input
+            value={nameDraft}
+            onChange={e => setNameDraft(e.target.value)}
+            placeholder="Your name"
+            maxLength={60}
+            autoFocus
+          />
+          <Button type="submit" disabled={!nameDraft.trim()} className="w-full rounded-full">
+            Start chatting
+          </Button>
+        </form>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Or{" "}
+          <Link
+            to={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}
+            className="text-primary hover:underline"
+          >
+            sign in
+          </Link>{" "}
+          for a persistent identity.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
         {sorted.length === 0 && (
-          <p className="font-mono text-xs text-[#777] uppercase">No messages yet — start the conversation.</p>
+          <p className="text-xs text-muted-foreground">No messages yet — start the conversation.</p>
         )}
         {sorted.map(m => (
-          <div key={m.id} className="border-l-4 border-black pl-3">
+          <div key={m.id} className="rounded-xl bg-muted/60 px-3 py-2">
             <div className="flex items-baseline gap-2">
-              <span className="font-body font-bold text-xs uppercase">{m.author_name || "GUEST"}</span>
-              <span className="font-mono text-[10px] text-[#777]">{fmt(m.created_date)}</span>
+              <span className="text-xs font-medium">{m.author_name || "Guest"}</span>
+              <span className="text-[11px] text-muted-foreground">{fmt(m.created_date)}</span>
             </div>
-            <p className="text-sm break-words font-body">{m.text}</p>
+            <p className="text-sm break-words">{m.text}</p>
           </div>
         ))}
         <div ref={bottomRef} />
       </div>
-      <form onSubmit={send} className="border-t-2 border-black p-3 flex gap-2">
+      <form onSubmit={send} className="border-t border-border p-3 flex gap-2">
         <Input
           value={text}
           onChange={e => setText(e.target.value)}
-          placeholder="TYPE A MESSAGE"
-          className="rounded-none border-2 border-black font-body"
+          placeholder="Type a message"
+          maxLength={1000}
         />
-        <button
+        <Button
           type="submit"
+          size="icon"
           disabled={!text.trim() || sending}
-          className="bg-[#CCFF00] text-black border-2 border-black px-3 font-display font-bold uppercase text-xs disabled:opacity-50 hover:bg-black hover:text-[#CCFF00] transition-colors"
+          className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
         >
           <Send className="w-4 h-4" />
-        </button>
+        </Button>
       </form>
     </div>
   );
