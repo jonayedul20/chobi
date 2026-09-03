@@ -1,27 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ImageIcon, Loader2, Lock, MessageCircle, Share2 } from "lucide-react";
+import { ImageIcon, Loader2, Lock, Share2 } from "lucide-react";
 import PhotoWall from "@/components/PhotoWall";
 import CommandStrip from "@/components/CommandStrip";
 import { getRemaining } from "@/lib/albums";
-
-const FEATURES = [
-  {
-    icon: ImageIcon,
-    title: "Full-resolution originals",
-    text: "Every frame is stored and shared exactly as it was shot. No compression, ever.",
-  },
-  {
-    icon: Lock,
-    title: "Private, protected links",
-    text: "Each album gets its own unique link — optionally guarded by a password.",
-  },
-  {
-    icon: MessageCircle,
-    title: "Real-time discussion",
-    text: "Chat with everyone viewing the album, right next to the photos.",
-  },
-];
 
 export default function HeroWall({ album, photos, loading, onOpen, onDownloadAll }) {
   if (loading || (album && !album.has_password && photos === null)) {
@@ -34,32 +16,13 @@ export default function HeroWall({ album, photos, loading, onOpen, onDownloadAll
 
   if (!album) {
     return (
-      <div className="bg-muted flex flex-col items-center">
-        <div className="px-6 pt-16 md:pt-24 pb-12 text-center">
-          <h1 className="font-display font-semibold tracking-tighter text-foreground text-[clamp(40px,6vw,80px)] leading-[1.05]">
-            Chobi <span className="text-primary">Archive</span>
-          </h1>
-          <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-            Full-resolution photo storage. No quality loss. Ever.
-          </p>
-          <Link
-            to="/login"
-            className="mt-8 inline-flex items-center gap-1.5 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            Sign in to get started →
-          </Link>
-        </div>
-        <div className="w-full max-w-5xl px-4 md:px-8 pb-16 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {FEATURES.map(f => (
-            <div key={f.title} className="rounded-2xl bg-card border border-border/60 p-6 text-center">
-              <div className="mx-auto w-10 h-10 rounded-full bg-accent flex items-center justify-center">
-                <f.icon className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="mt-4 font-semibold text-sm tracking-tight">{f.title}</h3>
-              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{f.text}</p>
-            </div>
-          ))}
-        </div>
+      <div className="bg-background min-h-[280px] flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+        <h2 className="font-display font-semibold tracking-tighter text-foreground text-[clamp(28px,4vw,44px)] leading-[1.05]">
+          Featured album
+        </h2>
+        <p className="text-base text-muted-foreground">
+          The archive is warming up — the newest album will feature here.
+        </p>
       </div>
     );
   }

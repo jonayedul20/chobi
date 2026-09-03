@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import HeaderBar from "@/components/HeaderBar";
+import LandingHero from "@/components/home/LandingHero";
 import HeroWall from "@/components/home/HeroWall";
 import ArchiveSidebar from "@/components/home/ArchiveSidebar";
 import AlbumCard from "@/components/AlbumCard";
@@ -27,7 +28,7 @@ export default function Home() {
 
   const isAdmin = user?.role === "admin";
   const visible = useMemo(
-    () => (albums ?? []).filter(a => !isAlbumExpired(a) && (a.is_public || isAdmin)),
+    () => (albums ?? []).filter(a => !isAlbumExpired(a) && (a.is_public || isAdmin || a.has_password)),
     [albums, isAdmin]
   );
   const heroAlbum = visible[0] ?? null;
@@ -73,6 +74,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <HeaderBar search={search} onSearch={setSearch} />
+      <LandingHero />
       <div className="flex flex-col lg:flex-row">
         <div className="lg:w-[70%]">
           <HeroWall
@@ -87,7 +89,7 @@ export default function Home() {
           <ArchiveSidebar albums={visible} user={user} />
         </aside>
       </div>
-      <section className="border-t border-border">
+      <section id="archive" className="border-t border-border">
         <div className="px-4 md:px-8 pt-10 pb-2 flex items-end justify-between gap-4">
           <h2 className="font-display font-semibold text-[clamp(28px,4vw,48px)] leading-none tracking-tighter">
             The archive
