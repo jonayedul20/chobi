@@ -71,7 +71,7 @@ export default function Home() {
     : visible;
 
   return (
-    <div className="min-h-screen bg-[#FFFDF5] text-black">
+    <div className="min-h-screen bg-background text-foreground">
       <HeaderBar search={search} onSearch={setSearch} />
       <div className="flex flex-col lg:flex-row">
         <div className="lg:w-[70%]">
@@ -83,23 +83,23 @@ export default function Home() {
             onDownloadAll={heroPhotos?.length ? downloadAll : undefined}
           />
         </div>
-        <aside className="lg:w-[30%] border-t-2 lg:border-t-0 lg:border-l-2 border-black">
+        <aside className="lg:w-[30%] border-t lg:border-t-0 lg:border-l border-border">
           <ArchiveSidebar albums={visible} user={user} />
         </aside>
       </div>
-      <section className="border-t-2 border-black">
-        <div className="px-4 md:px-8 pt-6 pb-2 flex items-end justify-between gap-4">
-          <h2 className="font-display font-extrabold uppercase text-[clamp(28px,4vw,48px)] leading-none tracking-tight">
-            THE ARCHIVE
+      <section className="border-t border-border">
+        <div className="px-4 md:px-8 pt-10 pb-2 flex items-end justify-between gap-4">
+          <h2 className="font-display font-semibold text-[clamp(28px,4vw,48px)] leading-none tracking-tighter">
+            The archive
           </h2>
-          <span className="font-mono text-xs text-[#777]">{filtered.length} ACTIVE</span>
+          <span className="text-sm text-muted-foreground">{filtered.length} active</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 p-4 md:p-8 pt-2">
-          {albums === null && <p className="font-mono text-xs text-[#777] uppercase">Loading archive…</p>}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 p-4 md:p-8 pt-6">
+          {albums === null && <p className="text-sm text-muted-foreground">Loading archive…</p>}
           {albums !== null && filtered.length === 0 && (
-            <div className="border-2 border-black p-6">
-              <p className="font-display font-extrabold uppercase text-lg tracking-tight">No albums yet</p>
-              <p className="text-sm text-[#777] mt-1 font-body">
+            <div className="rounded-2xl border border-border p-6">
+              <p className="font-display font-semibold text-lg tracking-tight">No albums yet</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 {isAdmin
                   ? "Create your first album in the control room."
                   : "Check back soon — new albums drop here."}

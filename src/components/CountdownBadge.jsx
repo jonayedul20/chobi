@@ -9,10 +9,10 @@ export default function CountdownBadge({ expiresAt }) {
   }, [expiresAt]);
 
   if (!expiresAt) {
-    return <span className="inline-block px-3 py-1 font-mono text-xs bg-black text-white border-2 border-black uppercase">NO EXPIRY</span>;
+    return <span className="inline-block rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">No expiry</span>;
   }
   if (remaining.expired) {
-    return <span className="inline-block px-3 py-1 font-mono text-xs bg-black text-[#CCFF00] border-2 border-black uppercase">EXPIRED</span>;
+    return <span className="inline-block rounded-full bg-destructive/10 px-3 py-1 text-xs text-destructive">Expired</span>;
   }
-  return <span className="inline-block px-3 py-1 font-mono text-xs bg-[#CCFF00] text-black border-2 border-black uppercase">EXPIRES IN: {remaining.label}</span>;
+  return <span className="inline-block rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">Expires in {remaining.label}</span>;
 }

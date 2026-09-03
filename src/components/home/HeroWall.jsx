@@ -7,52 +7,56 @@ import CommandStrip from "@/components/CommandStrip";
 export default function HeroWall({ album, photos, loading, onOpen, onDownloadAll }) {
   if (loading || (album && !album.has_password && photos === null)) {
     return (
-      <div className="bg-[#111111] min-h-[60vh] lg:min-h-[calc(100vh-56px)] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CCFF00]" />
+      <div className="bg-background min-h-[60vh] lg:min-h-[calc(100vh-57px)] flex items-center justify-center">
+        <Loader2 className="w-7 h-7 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!album) {
     return (
-      <div className="bg-[#111111] min-h-[60vh] lg:min-h-[calc(100vh-56px)] flex flex-col items-center justify-center gap-4 p-8 text-center">
-        <h1 className="font-display font-extrabold uppercase text-white text-[clamp(36px,7vw,80px)] leading-[0.95] tracking-tight">
-          RAW_SNAP <span className="text-[#CCFF00]">//</span> ARCHIVE
+      <div className="bg-muted min-h-[60vh] lg:min-h-[calc(100vh-57px)] flex flex-col items-center justify-center gap-5 p-8 text-center">
+        <h1 className="font-display font-semibold tracking-tighter text-foreground text-[clamp(40px,6vw,80px)] leading-[1.05]">
+          RawSnap <span className="text-primary">Archive</span>
         </h1>
-        <p className="font-mono text-xs text-[#777] uppercase">Full-resolution photo storage. No quality loss. Ever.</p>
+        <p className="text-base md:text-lg text-muted-foreground max-w-xl">
+          Full-resolution photo storage. No quality loss. Ever.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#111111] min-h-[60vh] lg:min-h-[calc(100vh-56px)] flex flex-col">
-      <div className="relative">
-        <div className="absolute top-0 left-0 right-0 z-10 p-4 md:p-8 pointer-events-none bg-gradient-to-b from-black/80 to-transparent">
-          <h1 className="font-display font-extrabold uppercase text-white text-[clamp(36px,7vw,80px)] leading-[0.95] tracking-tight break-words">
-            RAW_SNAP <span className="text-[#CCFF00]">//</span> {album.title}
-          </h1>
-        </div>
-        {album.has_password ? (
-          <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4 p-8 pt-32 text-center [background:repeating-linear-gradient(45deg,#111111_0_24px,#161616_24px_48px)]">
-            <Lock className="w-10 h-10 text-[#CCFF00]" />
-            <p className="font-display font-extrabold uppercase text-white text-2xl tracking-tight">PASSWORD PROTECTED</p>
+    <div className="bg-background min-h-[60vh] lg:min-h-[calc(100vh-57px)] flex flex-col">
+      <div className="bg-muted px-6 py-14 md:py-20 text-center">
+        <h1 className="font-display font-semibold tracking-tighter text-foreground text-[clamp(34px,5.5vw,72px)] leading-[1.05] break-words">
+          {album.title}
+        </h1>
+        <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+          {album.description || "Full-resolution photo storage. No quality loss. Ever."}
+        </p>
+        {album.has_password && (
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <Lock className="w-6 h-6 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">This album is password protected.</p>
             <Link
               to={`/a/${album.slug}`}
-              className="bg-[#CCFF00] text-black font-display font-bold uppercase text-xs px-4 py-2"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              ENTER PASSWORD →
+              Enter password →
             </Link>
-          </div>
-        ) : photos?.length ? (
-          <div className="pt-28 md:pt-36">
-            <PhotoWall photos={photos} onOpen={onOpen} />
-          </div>
-        ) : (
-          <div className="min-h-[50vh] flex items-center justify-center pt-28">
-            <p className="font-mono text-xs text-[#777] uppercase">No frames published in this album yet.</p>
           </div>
         )}
       </div>
+      {!album.has_password && photos?.length ? (
+        <div className="px-4 md:px-8 py-10">
+          <PhotoWall photos={photos} onOpen={onOpen} />
+        </div>
+      ) : !album.has_password ? (
+        <div className="flex-1 flex items-center justify-center py-20">
+          <p className="text-sm text-muted-foreground">No photos published in this album yet.</p>
+        </div>
+      ) : null}
       <div className="mt-auto">
         <CommandStrip album={album} onDownloadAll={onDownloadAll} />
       </div>

@@ -11,41 +11,41 @@ export default function HeaderBar({ search = "", onSearch, showSearch = true }) 
   const initials = (user?.full_name || user?.email || "?").trim().slice(0, 2).toUpperCase();
 
   return (
-    <header className="bg-black sticky top-0 z-30">
-      <div className="flex items-center gap-3 px-4 py-3 max-w-[1600px] mx-auto">
-        <Link to="/" className="font-display font-extrabold uppercase text-white text-xl tracking-tight shrink-0">
-          RAW<span className="text-[#CCFF00]">SNAP</span>
+    <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/60">
+      <div className="flex items-center gap-3 px-4 md:px-8 py-3 max-w-[1600px] mx-auto">
+        <Link to="/" className="font-display font-semibold text-xl tracking-tight text-foreground shrink-0">
+          Raw<span className="text-primary">Snap</span>
         </Link>
         {showSearch && (
-          <div className="relative hidden md:block flex-1 max-w-sm ml-4">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#777]" />
+          <div className="relative hidden md:block flex-1 max-w-sm ml-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               value={search}
               onChange={e => onSearch?.(e.target.value)}
-              placeholder="SEARCH THE ARCHIVE"
-              className="pl-8 rounded-none border-2 border-[#333] bg-[#111111] text-white placeholder:text-[#777] font-mono text-xs h-9"
+              placeholder="Search the archive"
+              className="pl-9 h-9 rounded-full border border-transparent bg-muted text-sm placeholder:text-muted-foreground"
             />
           </div>
         )}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-3">
           {isAdmin && (
             <Link
               to="/admin"
-              className="inline-flex items-center gap-1.5 bg-[#CCFF00] text-black px-3 py-1.5 font-display font-bold uppercase text-xs hover:bg-white transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
             >
-              <Plus className="w-4 h-4" /> NEW ALBUM
+              <Plus className="w-4 h-4" /> New album
             </Link>
           )}
           {user ? (
-            <Avatar className="border-2 border-[#CCFF00] rounded-none w-8 h-8">
-              <AvatarFallback className="bg-black text-[#CCFF00] font-display font-bold text-xs rounded-none">{initials}</AvatarFallback>
+            <Avatar className="w-8 h-8 rounded-full border border-border">
+              <AvatarFallback className="bg-muted text-foreground text-xs font-medium rounded-full">{initials}</AvatarFallback>
             </Avatar>
           ) : (
             <Link
               to="/login"
-              className="border-2 border-[#CCFF00] text-[#CCFF00] px-3 py-1.5 font-display font-bold uppercase text-xs hover:bg-[#CCFF00] hover:text-black transition-colors"
+              className="text-sm font-medium text-primary hover:underline underline-offset-4"
             >
-              SIGN IN
+              Sign in
             </Link>
           )}
         </div>

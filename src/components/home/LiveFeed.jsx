@@ -28,36 +28,36 @@ export default function LiveFeed({ albums, user }) {
 
   if (!user) {
     return (
-      <div className="p-4">
-        <h2 className="font-display font-extrabold uppercase text-xl tracking-tight">LIVE FEED</h2>
-        <p className="mt-3 text-sm text-[#777] font-body">
+      <div className="p-5 md:p-6">
+        <h2 className="font-display font-semibold text-lg tracking-tight">Live feed</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
           Sign in with your Google account to follow the conversation.
         </p>
         <Link
           to="/login"
-          className="mt-3 inline-block bg-[#CCFF00] text-black border-2 border-black px-4 py-2 font-display font-bold uppercase text-xs hover:bg-black hover:text-[#CCFF00] transition-colors"
+          className="mt-4 inline-block rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
         >
-          SIGN IN WITH GOOGLE
+          Sign in with Google
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="p-4">
-      <h2 className="font-display font-extrabold uppercase text-xl tracking-tight">LIVE FEED</h2>
-      <ul className="mt-3 space-y-3 max-h-96 overflow-auto">
-        {messages === null && <li className="font-mono text-xs text-[#777] uppercase">Loading…</li>}
-        {messages?.length === 0 && <li className="font-mono text-xs text-[#777] uppercase">No messages yet.</li>}
+    <div className="p-5 md:p-6">
+      <h2 className="font-display font-semibold text-lg tracking-tight">Live feed</h2>
+      <ul className="mt-4 space-y-3 max-h-96 overflow-auto">
+        {messages === null && <li className="text-sm text-muted-foreground">Loading…</li>}
+        {messages?.length === 0 && <li className="text-sm text-muted-foreground">No messages yet.</li>}
         {(messages ?? []).map(m => (
-          <li key={m.id} className="border-l-4 border-black pl-3">
+          <li key={m.id} className="border-l-2 border-border pl-3">
             <div className="flex items-baseline gap-2">
-              <span className="font-body font-bold text-xs uppercase">{m.author_name || "GUEST"}</span>
-              <span className="font-mono text-[10px] text-[#777]">{fmt(m.created_date)}</span>
+              <span className="text-xs font-medium">{m.author_name || "Guest"}</span>
+              <span className="text-[11px] text-muted-foreground">{fmt(m.created_date)}</span>
             </div>
-            <p className="text-sm break-words font-body">{m.text}</p>
+            <p className="text-sm break-words">{m.text}</p>
             {albumById[m.album_id] && (
-              <Link to={`/a/${albumById[m.album_id].slug}`} className="font-mono text-[10px] text-[#777] underline">
+              <Link to={`/a/${albumById[m.album_id].slug}`} className="text-[11px] text-primary hover:underline">
                 {albumById[m.album_id].title}
               </Link>
             )}

@@ -13,37 +13,37 @@ export default function CommandStrip({ album, showViewLink = true, onDownloadAll
     try {
       await navigator.clipboard.writeText(albumShareUrl(album.slug));
       setCopied(true);
-      toast({ title: "SHARE LINK COPIED" });
+      toast({ title: "Share link copied" });
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast({ title: "COPY FAILED", description: albumShareUrl(album.slug) });
+      toast({ title: "Copy failed", description: albumShareUrl(album.slug) });
     }
   };
 
   return (
-    <div className="sticky bottom-14 lg:bottom-0 z-20 border-t-2 border-[#333] bg-[#111111] px-4 py-3 flex flex-wrap items-center gap-3">
+    <div className="sticky bottom-14 lg:bottom-0 z-20 border-t border-border bg-background/80 backdrop-blur-xl px-4 md:px-6 py-3 flex flex-wrap items-center gap-3">
       <CountdownBadge expiresAt={album.expires_at} />
       <button
         onClick={copy}
-        className="inline-flex items-center gap-2 px-4 py-2 font-display font-bold uppercase text-xs bg-[#CCFF00] text-black hover:bg-white transition-colors"
+        className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
       >
-        <Link2 className="w-4 h-4" /> {copied ? "LINK COPIED" : "SHARE LINK"}
+        <Link2 className="w-4 h-4" /> {copied ? "Link copied" : "Share link"}
       </button>
       {onDownloadAll && (
         <button
           onClick={onDownloadAll}
-          className="inline-flex items-center gap-2 px-4 py-2 font-display font-bold uppercase text-xs bg-transparent text-white border-2 border-[#333] hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors"
+          className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-medium hover:border-primary hover:text-primary transition-colors"
         >
-          <Download className="w-4 h-4" /> DOWNLOAD ALL
+          <Download className="w-4 h-4" /> Download all
         </button>
       )}
-      <span className="inline-flex items-center gap-2 border-2 border-[#333] px-3 py-2 font-mono text-xs text-white uppercase">
-        {album.has_password ? <Lock className="w-4 h-4 text-[#CCFF00]" /> : <LockOpen className="w-4 h-4 text-[#CCFF00]" />}
-        {album.has_password ? "LOCKED" : "OPEN"}
+      <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-2 text-xs text-muted-foreground">
+        {album.has_password ? <Lock className="w-4 h-4" /> : <LockOpen className="w-4 h-4" />}
+        {album.has_password ? "Password protected" : "Open"}
       </span>
       {showViewLink && (
-        <Link to={`/a/${album.slug}`} className="ml-auto font-mono text-xs text-white underline hover:text-[#CCFF00]">
-          VIEW ALBUM →
+        <Link to={`/a/${album.slug}`} className="ml-auto text-sm font-medium text-primary hover:underline underline-offset-4">
+          View album →
         </Link>
       )}
     </div>
