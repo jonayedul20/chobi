@@ -4,6 +4,7 @@ import { Plus, Search } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function HeaderBar({ search = "", onSearch, showSearch = true }) {
   const { user } = useAuth();
