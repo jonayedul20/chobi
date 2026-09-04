@@ -258,17 +258,19 @@ export default function AlbumView() {
         </div>
       </aside>
 
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border grid grid-cols-2 h-14">
+      {/* pb-[env(...)] keeps the bar's buttons clear of the iPhone home
+          indicator; on other devices the inset is 0 and nothing changes. */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border grid grid-cols-2 pb-[env(safe-area-inset-bottom)]">
         <button
           onClick={() => setChatOpen(true)}
-          className="text-primary text-sm font-medium flex items-center justify-center gap-2 px-2"
+          className="h-14 text-primary text-sm font-medium flex items-center justify-center gap-2 px-2"
         >
           Chat {msgCount != null ? `(${msgCount})` : ""}
         </button>
         <button
           onClick={downloadAll}
           disabled={!photos?.length || !!zipping}
-          className="border-l border-border text-sm font-medium flex items-center justify-center px-2 disabled:opacity-50"
+          className="h-14 border-l border-border text-sm font-medium flex items-center justify-center px-2 disabled:opacity-50"
         >
           {downloadLabel}
         </button>
@@ -277,7 +279,7 @@ export default function AlbumView() {
       {chatOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/40 flex items-end" onClick={() => setChatOpen(false)}>
           <div
-            className="w-full h-[80vh] bg-background border-t border-border rounded-t-3xl flex flex-col"
+            className="w-full h-[80vh] bg-background border-t border-border rounded-t-3xl flex flex-col pb-[env(safe-area-inset-bottom)]"
             onClick={e => e.stopPropagation()}
           >
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
