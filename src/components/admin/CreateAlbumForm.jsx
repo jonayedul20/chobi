@@ -14,7 +14,9 @@ export default function CreateAlbumForm({ onCreated }) {
   const [description, setDescription] = useState("");
   const [password, setPassword] = useState("");
   const [isPublic, setIsPublic] = useState(true);
-  const [expiry, setExpiry] = useState("7d");
+  // Default to no expiry. A silently expiring link is a bad surprise on a
+  // client gallery — expiry is opt-in, chosen per album.
+  const [expiry, setExpiry] = useState("never");
   const [customDate, setCustomDate] = useState("");
   const [busy, setBusy] = useState(false);
 
