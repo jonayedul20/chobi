@@ -1,8 +1,8 @@
 import React from "react";
-import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Heart, X } from "lucide-react";
 import { formatBytes } from "@/lib/albums";
 
-export default function PhotoLightbox({ photos, index, onIndex, onClose }) {
+export default function PhotoLightbox({ photos, index, onIndex, onClose, onToggleFavorite }) {
   const photo = photos[index];
   if (!photo) return null;
 
@@ -52,6 +52,20 @@ export default function PhotoLightbox({ photos, index, onIndex, onClose }) {
         <span className="text-xs text-white/60 truncate">
           {photo.file_name} {photo.size_bytes ? `· ${formatBytes(photo.size_bytes)}` : ""}
         </span>
+        {onToggleFavorite && (
+          <button
+            onClick={() => onToggleFavorite(photo.id)}
+            aria-label={photo.faved ? "Remove favorite" : "Favorite this photo"}
+            className={`rounded-full text-xs font-medium px-4 py-2 inline-flex items-center gap-2 border transition-colors ${
+              photo.faved
+                ? "border-rose-400/60 bg-rose-500/20 text-rose-300"
+                : "border-white/20 text-white/80 hover:bg-white/10"
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${photo.faved ? "fill-current" : ""}`} />
+            {photo.fav_count || 0}
+          </button>
+        )}
         <a
           href={photo.signed_url}
           download
