@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Send, UserRound } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -7,11 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const NAME_KEY = "chobi_display_name";
+const POLL_MS = 3000;
 
 const fmt = d =>
   new Date(d).toLocaleString([], { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
-export default function AlbumChat({ albumId }) {
+// `onCount` should be a stable function (a useState setter is ideal) — it is
+// called whenever the message count changes so the parent can badge the tab.
+export default function AlbumChat({ albumId, slug, hasPassword = false, onCount }) {
   const { user } = useAuth();
   const [guestName, setGuestName] = useState(() => localStorage.getItem(NAME_KEY) || "");
   const [nameDraft, setNameDraft] = useState("");
@@ -20,8 +23,31 @@ export default function AlbumChat({ albumId }) {
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
 
+  // Password-protected albums can't read ChatMessage directly: row-level
+  // security has no way to know a guest typed the right password. Those
+  // albums poll a gated backend function instead of using realtime updates.
+  const fetchGated = useCallback(async () => {
+    const pw = sessionStorage.getItem(`rawsnap_pw_${slug}`) ?? "";
+    const res = await base44.functions.invoke("getAlbumMessages", { slug, password: pw });
+    return res.data?.messages ?? [];
+  }, [slug]);
+
   useEffect(() => {
     let on = true;
+
+    if (hasPassword) {
+      const tick = () =>
+        fetchGated()
+          .then(list => on && setMessages(list))
+          .catch(() => on && setMessages(prev => prev ?? []));
+      tick();
+      const timer = setInterval(tick, POLL_MS);
+      return () => {
+        on = false;
+        clearInterval(timer);
+      };
+    }
+
     base44.entities.ChatMessage.filter({ album_id: albumId }, "created_date", 200)
       .then(list => on && setMessages(list ?? []))
       .catch(() => on && setMessages([]));
@@ -43,12 +69,16 @@ export default function AlbumChat({ albumId }) {
       on = false;
       if (unsub) unsub();
     };
-  }, [albumId]);
+  }, [albumId, hasPassword, fetchGated]);
 
   const sorted = useMemo(
     () => [...(messages ?? [])].sort((a, b) => new Date(a.created_date) - new Date(b.created_date)),
     [messages]
   );
+
+  useEffect(() => {
+    onCount?.(messages === null ? null : messages.length);
+  }, [messages, onCount]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
@@ -74,6 +104,11 @@ export default function AlbumChat({ albumId }) {
         author_name: user?.full_name || user?.email || guestName || "Guest"
       });
       setText("");
+      // Polling mode won't show the message for up to POLL_MS, so pull once now.
+      if (hasPassword) {
+        const list = await fetchGated().catch(() => null);
+        if (list) setMessages(list);
+      }
     } catch {
       // failed sends simply don't appear
     } finally {
