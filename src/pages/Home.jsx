@@ -114,7 +114,7 @@ export default function Home() {
       </main>
       <section
         id="archive"
-        className="mx-4 mb-20 mt-6 rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] p-6 backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)] md:mx-[74px] md:mt-[42px] md:p-[34px]"
+        className="mx-4 mb-20 mt-6 rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] dark:border-white/10 dark:bg-[rgba(26,31,27,0.7)] p-6 backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)] dark:shadow-none md:mx-[74px] md:mt-[42px] md:p-[34px]"
       >
         <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
           <h2 className="font-display text-[36px] font-medium leading-[1.08] tracking-[-1.3px]">
@@ -125,7 +125,7 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {albums === null && <p className="text-sm text-muted-foreground">Loading archive…</p>}
           {albums !== null && filtered.length === 0 && (
-            <div className="rounded-[17px] border border-dashed border-[#9bb19d] p-6">
+            <div className="rounded-[17px] border border-dashed border-[#9bb19d] dark:border-[#46564a] p-6">
               <p className="font-semibold text-lg">No albums yet</p>
               <p className="mt-1.5 text-sm text-muted-foreground">
                 {isAdmin
