@@ -12,7 +12,15 @@ const PILL =
   "inline-flex items-center gap-1.5 rounded-[20px] bg-[#d6e3d6] px-[13px] py-2 text-xs font-bold text-primary";
 const BLANK = "rounded-[17px] border border-dashed border-[#9bb19d] p-6 text-center";
 
-export default function HeroWall({ album, photos, loading, onOpen, onDownloadAll }) {
+export default function HeroWall({
+  album,
+  photos,
+  loading,
+  onOpen,
+  onDownloadAll,
+  downloadLabel = "Download all",
+  downloadBusy = false
+}) {
   if (loading || (album && !album.has_password && photos === null)) {
     return (
       <div className={`${PANEL} flex min-h-[480px] items-center justify-center`}>
@@ -111,9 +119,10 @@ export default function HeroWall({ album, photos, loading, onOpen, onDownloadAll
             {onDownloadAll && (
               <button
                 onClick={onDownloadAll}
-                className="shrink-0 cursor-pointer rounded-[22px] border border-[#9ab09c] bg-transparent px-4 py-2.5 text-sm font-medium text-primary transition-[background,box-shadow] duration-200 hover:bg-[#dce8dc] hover:shadow-[0_5px_12px_rgba(61,90,69,0.12)]"
+                disabled={downloadBusy}
+                className="shrink-0 cursor-pointer rounded-[22px] border border-[#9ab09c] bg-transparent px-4 py-2.5 text-sm font-medium text-primary transition-[background,box-shadow] duration-200 hover:bg-[#dce8dc] hover:shadow-[0_5px_12px_rgba(61,90,69,0.12)] disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:shadow-none"
               >
-                Download all
+                {downloadLabel}
               </button>
             )}
           </div>
@@ -129,7 +138,12 @@ export default function HeroWall({ album, photos, loading, onOpen, onDownloadAll
       )}
 
       <div className="mt-auto pt-6">
-        <CommandStrip album={album} onDownloadAll={onDownloadAll} />
+        <CommandStrip
+          album={album}
+          onDownloadAll={onDownloadAll}
+          downloadLabel={downloadLabel}
+          downloadBusy={downloadBusy}
+        />
       </div>
     </div>
   );
