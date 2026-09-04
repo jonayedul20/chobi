@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
+import { downloadPhotosAsZip, zipFileName } from "@/lib/zipDownload";
 import HeaderBar from "@/components/HeaderBar";
 import LandingHero from "@/components/home/LandingHero";
 import HeroWall from "@/components/home/HeroWall";
@@ -15,6 +17,9 @@ export default function Home() {
   const [heroPhotos, setHeroPhotos] = useState(null);
   const [lightbox, setLightbox] = useState(null);
   const [search, setSearch] = useState("");
+  const [zipping, setZipping] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     let on = true;
@@ -47,20 +52,40 @@ export default function Home() {
     return () => {
       on = false;
     };
-  }, [heroAlbum?.id]);
+  }, [heroAlbum?.id, reloadKey]);
 
-  const downloadAll = () => {
-    (heroPhotos ?? []).forEach((p, i) => {
-      setTimeout(() => {
-        const a = document.createElement("a");
-        a.href = p.signed_url;
-        a.download = p.file_name || "photo";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }, i * 400);
-    });
+  // Signed photo URLs are only valid for an hour — refresh before they lapse.
+  useEffect(() => {
+    const timer = setInterval(() => setReloadKey(k => k + 1), 50 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const downloadAll = async () => {
+    if (zipping) return;
+    setZipping({ index: 0, total: heroPhotos?.length ?? 0 });
+    try {
+      const { skipped } = await downloadPhotosAsZip(heroPhotos, {
+        zipName: zipFileName(heroAlbum?.title),
+        onProgress: setZipping
+      });
+      if (skipped.length > 0) {
+        toast({
+          title: "Some photos were skipped",
+          description: `${skipped.length} file(s) could not be fetched. The rest are in your ZIP.`
+        });
+      }
+    } catch (err) {
+      if (err?.name !== "AbortError") {
+        toast({ title: "Download failed", description: err?.message || "Try again." });
+      }
+    } finally {
+      setZipping(null);
+    }
   };
+
+  const downloadLabel = zipping
+    ? `Zipping ${Math.min(zipping.index + 1, zipping.total)}/${zipping.total}`
+    : "Download all";
 
   const q = search.trim().toLowerCase();
   const filtered = q
@@ -82,6 +107,8 @@ export default function Home() {
           loading={albums === null}
           onOpen={setLightbox}
           onDownloadAll={heroPhotos?.length ? downloadAll : undefined}
+          downloadLabel={downloadLabel}
+          downloadBusy={!!zipping}
         />
         <ArchiveSidebar albums={visible} />
       </main>
