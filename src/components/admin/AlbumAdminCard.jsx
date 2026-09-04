@@ -22,11 +22,26 @@ export default function AlbumAdminCard({ album, onChanged }) {
 
   const loadCount = () =>
     base44.entities.Photo.filter({ album_id: album.id }, "created_date", 500)
-      .then(l => setPhotoCount(l?.length ?? 0))
-      .catch(() => setPhotoCount(0));
+      .then(l => {
+        const n = l?.length ?? 0;
+        setPhotoCount(n);
+        return n;
+      })
+      .catch(() => {
+        setPhotoCount(0);
+        return 0;
+      });
 
   useEffect(() => {
-    loadCount();
+    let on = true;
+    loadCount().then(n => {
+      // A freshly created album has nothing to show and no obvious next step.
+      // Open the uploader for it instead of hiding it behind a button.
+      if (on && n === 0) setUploading(true);
+    });
+    return () => {
+      on = false;
+    };
   }, [album.id]);
 
   const copy = async () => {
@@ -49,7 +64,9 @@ export default function AlbumAdminCard({ album, onChanged }) {
           {album.has_password ? "Locked" : "Open"}
         </span>
         <span className={chip}>{album.is_public ? "Public" : "Link only"}</span>
-        <span className={chip}>{photoCount ?? "…"} photos</span>
+        <span className={chip}>
+          {photoCount === null ? "…" : photoCount === 0 ? "No photos yet" : `${photoCount} photos`}
+        </span>
       </div>
       <p className="text-xs text-muted-foreground break-all">{albumShareUrl(album.slug)}</p>
       <div className="flex flex-wrap gap-2">
@@ -59,8 +76,15 @@ export default function AlbumAdminCard({ album, onChanged }) {
         <button onClick={copy} className={actionBtn}>
           <Copy className="w-3.5 h-3.5" /> Copy link
         </button>
-        <button onClick={() => setUploading(u => !u)} className={actionBtn}>
-          <Upload className="w-3.5 h-3.5" /> Photos
+        <button
+          onClick={() => setUploading(u => !u)}
+          className={
+            photoCount === 0
+              ? `${actionBtn} border-primary bg-primary text-primary-foreground hover:bg-primary/90`
+              : actionBtn
+          }
+        >
+          <Upload className="w-3.5 h-3.5" /> Upload photos
         </button>
         <button onClick={() => setEditing(true)} className={actionBtn}>
           <Pencil className="w-3.5 h-3.5" /> Edit
