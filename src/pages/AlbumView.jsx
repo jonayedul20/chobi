@@ -49,10 +49,11 @@ export default function AlbumView() {
     setAlbum(undefined);
     setUnlocked(false);
     setPhotos(null);
-    base44.entities.Album.filter({ slug })
-      .then(list => {
+    base44.functions
+      .invoke("getAlbumMeta", { slug })
+      .then(res => {
         if (!on) return;
-        const found = list?.[0] ?? null;
+        const found = res.data?.album ?? null;
         setAlbum(found);
         if (found && !found.has_password) setUnlocked(true);
       })
