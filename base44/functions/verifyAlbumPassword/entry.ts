@@ -8,7 +8,7 @@ export default async function(req) {
     const slug = String(body.slug || "");
     const password = body.password ? String(body.password) : "";
 
-    const albums = await base44.entities.Album.filter({ slug });
+    const albums = await base44.asServiceRole.entities.Album.filter({ slug });
     const album = albums && albums[0];
     if (!album) return Response.json({ error: "NOT_FOUND" }, { status: 404 });
     if (isExpired(album)) return Response.json({ valid: false, reason: "EXPIRED" });
