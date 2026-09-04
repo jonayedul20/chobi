@@ -48,7 +48,7 @@ export default function PhotoLightbox({ photos, index, onIndex, onClose }) {
           </button>
         )}
       </div>
-      <div className="flex items-center justify-between gap-3 px-5 py-3 border-t border-white/10 flex-wrap">
+      <div className="flex items-center justify-between gap-3 px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-white/10 flex-wrap">
         <span className="text-xs text-white/60 truncate">
           {photo.file_name} {photo.size_bytes ? `· ${formatBytes(photo.size_bytes)}` : ""}
         </span>
