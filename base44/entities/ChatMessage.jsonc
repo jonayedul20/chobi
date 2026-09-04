@@ -1,14 +1,18 @@
 {
   "name": "ChatMessage",
-  "type": "object",
   "properties": {
     "album_id": {
       "type": "string"
     },
-    "text": {
+    "author_name": {
       "type": "string"
     },
-    "author_name": {
+    "is_listed": {
+      "default": false,
+      "description": "True only when the parent album is public and has no password. Controls who may read this message.",
+      "type": "boolean"
+    },
+    "text": {
       "type": "string"
     }
   },
@@ -17,23 +21,10 @@
     "text"
   ],
   "rls": {
-    "read": {},
     "create": {
       "user_condition": {
         "role": "admin"
       }
-    },
-    "update": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
     },
     "delete": {
       "$or": [
@@ -46,6 +37,31 @@
           }
         }
       ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.is_listed": true
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
-  }
+  },
+  "type": "object"
 }
