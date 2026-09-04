@@ -5,7 +5,13 @@ import CountdownBadge from "@/components/CountdownBadge";
 import { albumShareUrl } from "@/lib/albums";
 import { useToast } from "@/components/ui/use-toast";
 
-export default function CommandStrip({ album, showViewLink = true, onDownloadAll }) {
+export default function CommandStrip({
+  album,
+  showViewLink = true,
+  onDownloadAll,
+  downloadLabel = "Download all",
+  downloadBusy = false
+}) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -32,9 +38,10 @@ export default function CommandStrip({ album, showViewLink = true, onDownloadAll
       {onDownloadAll && (
         <button
           onClick={onDownloadAll}
-          className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-medium hover:border-primary hover:text-primary transition-colors"
+          disabled={downloadBusy}
+          className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-medium hover:border-primary hover:text-primary transition-colors disabled:opacity-60 disabled:hover:border-border disabled:hover:text-foreground"
         >
-          <Download className="w-4 h-4" /> Download all
+          <Download className="w-4 h-4" /> {downloadLabel}
         </button>
       )}
       <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-2 text-xs text-muted-foreground">
