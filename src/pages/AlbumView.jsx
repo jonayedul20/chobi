@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ImageIcon, Loader2, X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { useToast } from "@/components/ui/use-toast";
+import { downloadPhotosAsZip, zipFileName } from "@/lib/zipDownload";
 import HeaderBar from "@/components/HeaderBar";
 import PhotoWall from "@/components/PhotoWall";
 import CommandStrip from "@/components/CommandStrip";
@@ -43,6 +45,9 @@ export default function AlbumView() {
   const [lightbox, setLightbox] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [msgCount, setMsgCount] = useState(null);
+  const [zipping, setZipping] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     let on = true;
@@ -87,7 +92,15 @@ export default function AlbumView() {
     return () => {
       on = false;
     };
-  }, [unlocked, album?.id]);
+  }, [unlocked, album?.id, reloadKey]);
+
+  // Signed photo URLs expire an hour after they are issued. Refresh them
+  // before that, or a guest who leaves the tab open over lunch comes back to
+  // a page of broken images with no way to recover.
+  useEffect(() => {
+    const timer = setInterval(() => setReloadKey(k => k + 1), 50 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const unlock = async pw => {
     setBusy(true);
@@ -107,18 +120,33 @@ export default function AlbumView() {
     }
   };
 
-  const downloadAll = () => {
-    (photos ?? []).forEach((p, i) => {
-      setTimeout(() => {
-        const a = document.createElement("a");
-        a.href = p.signed_url;
-        a.download = p.file_name || "photo";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }, i * 400);
-    });
+  const downloadAll = async () => {
+    if (zipping) return;
+    setZipping({ index: 0, total: photos?.length ?? 0 });
+    try {
+      const { skipped } = await downloadPhotosAsZip(photos, {
+        zipName: zipFileName(album?.title),
+        onProgress: setZipping
+      });
+      if (skipped.length > 0) {
+        toast({
+          title: "Some photos were skipped",
+          description: `${skipped.length} file(s) could not be fetched. The rest are in your ZIP.`
+        });
+      }
+    } catch (err) {
+      // Cancelling the browser's save dialog is a normal action, not an error.
+      if (err?.name !== "AbortError") {
+        toast({ title: "Download failed", description: err?.message || "Try again." });
+      }
+    } finally {
+      setZipping(null);
+    }
   };
+
+  const downloadLabel = zipping
+    ? `Zipping ${Math.min(zipping.index + 1, zipping.total)}/${zipping.total}`
+    : "Download all";
 
   if (album === undefined) {
     return (
@@ -186,7 +214,13 @@ export default function AlbumView() {
           </div>
         )}
         <div className="mt-auto">
-          <CommandStrip album={album} showViewLink={false} onDownloadAll={photos?.length ? downloadAll : undefined} />
+          <CommandStrip
+            album={album}
+            showViewLink={false}
+            onDownloadAll={photos?.length ? downloadAll : undefined}
+            downloadLabel={downloadLabel}
+            downloadBusy={!!zipping}
+          />
         </div>
       </div>
 
@@ -216,10 +250,10 @@ export default function AlbumView() {
         </button>
         <button
           onClick={downloadAll}
-          disabled={!photos?.length}
+          disabled={!photos?.length || !!zipping}
           className="border-l border-border text-sm font-medium flex items-center justify-center px-2 disabled:opacity-50"
         >
-          Download all
+          {downloadLabel}
         </button>
       </div>
 
