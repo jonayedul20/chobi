@@ -18,8 +18,9 @@ export default function Home() {
 
   useEffect(() => {
     let on = true;
-    base44.entities.Album.list("-created_date", 100)
-      .then(list => on && setAlbums(list ?? []))
+    base44.functions
+      .invoke("listAlbums", {})
+      .then(res => on && setAlbums(res.data?.albums ?? []))
       .catch(() => on && setAlbums([]));
     return () => {
       on = false;
@@ -27,10 +28,9 @@ export default function Home() {
   }, []);
 
   const isAdmin = user?.role === "admin";
-  const visible = useMemo(
-    () => (albums ?? []).filter(a => !isAlbumExpired(a) && (a.is_public || isAdmin || a.has_password)),
-    [albums, isAdmin]
-  );
+  // listAlbums already applies visibility rules server-side; this only hides
+  // albums that expired between the fetch and now.
+  const visible = useMemo(() => (albums ?? []).filter(a => !isAlbumExpired(a)), [albums]);
   const heroAlbum = visible[0] ?? null;
 
   useEffect(() => {
