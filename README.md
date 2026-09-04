@@ -136,6 +136,16 @@ npm run lint     # eslint
 
 ---
 
+## License
+
+**This project is not open source.** The source is public for portfolio and
+review purposes only — all rights are reserved. You are welcome to read it,
+but not to use, copy, deploy, or build on it without written permission.
+
+See [LICENSE](LICENSE) for the full terms.
+
+---
+
 ## Known limitations
 
 - `getAlbumPhotos` caps at 200 photos with no pagination
