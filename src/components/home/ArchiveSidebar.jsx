@@ -1,12 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Lock } from "lucide-react";
-import LiveFeed from "@/components/home/LiveFeed";
 
 const PANEL =
   "rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)]";
 
-export default function ArchiveSidebar({ albums, user }) {
+export default function ArchiveSidebar({ albums }) {
   return (
     <aside className={`${PANEL} p-[30px]`}>
       <p className="mb-3 text-xs font-bold uppercase tracking-[2px] text-muted-foreground">
@@ -31,9 +30,6 @@ export default function ArchiveSidebar({ albums, user }) {
           </li>
         ))}
       </ul>
-      <div className="border-t border-dashed border-[#9bb19d] pt-7">
-        <LiveFeed albums={albums} user={user} />
-      </div>
     </aside>
   );
 }
