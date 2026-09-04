@@ -1,6 +1,14 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.44";
 import { isExpired, hashPassword } from "../../shared/albumSecurity.ts";
 
+// Signing a file URL costs an integration credit per call, and the old
+// version signed every photo's URLs fresh for every viewer, every visit —
+// cost scaled with traffic. Now URLs are minted once, cached on the Photo
+// record, and shared by all viewers until they near expiry. Cost scales
+// with photos per day instead of viewers.
+const SIGN_SECONDS = 24 * 60 * 60; // ask for 24h-lived URLs
+const REFRESH_BUFFER_MS = 45 * 60 * 1000; // re-sign when less than this remains
+
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -20,33 +28,53 @@ export default async function(req) {
     }
 
     const sign = async (fileUri) => {
-      if (!fileUri) return null;
+      if (!fileUri) return "";
       const res = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({
         file_uri: fileUri,
-        expires_in: 3600
+        expires_in: SIGN_SECONDS
       });
-      return res.signed_url;
+      return res.signed_url || "";
     };
 
     const photos = (await base44.asServiceRole.entities.Photo.filter({ album_id: album.id }, "created_date", 200)) ?? [];
-    const signed = await Promise.all(photos.map(async (photo) => {
-      const [originalUrl, thumbUrl, webUrl] = await Promise.all([
-        sign(photo.file_uri),
-        sign(photo.thumb_uri),
-        sign(photo.web_uri)
-      ]);
-      return {
-        id: photo.id,
-        file_name: photo.file_name,
-        size_bytes: photo.size_bytes,
-        width: photo.width || null,
-        height: photo.height || null,
-        // signed_url stays the original — it is what downloads use.
-        // Photos uploaded before derivatives existed fall back to it.
-        signed_url: originalUrl,
-        thumb_url: thumbUrl || webUrl || originalUrl,
-        web_url: webUrl || originalUrl
-      };
+
+    const now = Date.now();
+    const stale = photos.filter(p => {
+      if (!p.url_original || !p.signed_until) return true;
+      return new Date(p.signed_until).getTime() - now < REFRESH_BUFFER_MS;
+    });
+
+    if (stale.length > 0) {
+      // If the platform caps expiry below what we asked for, cached URLs
+      // would outlive their validity — so trust the shorter of the two.
+      const signedUntil = new Date(now + SIGN_SECONDS * 1000).toISOString();
+      await Promise.all(stale.map(async (p) => {
+        const [o, t, w] = await Promise.all([sign(p.file_uri), sign(p.thumb_uri), sign(p.web_uri)]);
+        p.url_original = o;
+        p.url_thumb = t;
+        p.url_web = w;
+        p.signed_until = signedUntil;
+      }));
+      await base44.asServiceRole.entities.Photo.bulkUpdate(stale.map(p => ({
+        id: p.id,
+        url_original: p.url_original,
+        url_thumb: p.url_thumb,
+        url_web: p.url_web,
+        signed_until: p.signed_until
+      })));
+    }
+
+    const signed = photos.map(photo => ({
+      id: photo.id,
+      file_name: photo.file_name,
+      size_bytes: photo.size_bytes,
+      width: photo.width || null,
+      height: photo.height || null,
+      // signed_url stays the original — it is what downloads use.
+      // Photos uploaded before derivatives existed fall back to it.
+      signed_url: photo.url_original,
+      thumb_url: photo.url_thumb || photo.url_web || photo.url_original,
+      web_url: photo.url_web || photo.url_original
     }));
 
     return Response.json({
