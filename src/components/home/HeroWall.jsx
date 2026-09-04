@@ -7,10 +7,10 @@ import CommandStrip from "@/components/CommandStrip";
 import { getRemaining } from "@/lib/albums";
 
 const PANEL =
-  "rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)]";
+  "rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)] dark:border-white/10 dark:bg-[rgba(26,31,27,0.7)] dark:shadow-none";
 const PILL =
-  "inline-flex items-center gap-1.5 rounded-[20px] bg-[#d6e3d6] px-[13px] py-2 text-xs font-bold text-primary";
-const BLANK = "rounded-[17px] border border-dashed border-[#9bb19d] p-6 text-center";
+  "inline-flex items-center gap-1.5 rounded-[20px] bg-[#d6e3d6] dark:bg-[#2a352c] px-[13px] py-2 text-xs font-bold text-primary";
+const BLANK = "rounded-[17px] border border-dashed border-[#9bb19d] dark:border-[#46564a] p-6 text-center";
 
 export default function HeroWall({
   album,
@@ -85,7 +85,7 @@ export default function HeroWall({
           </p>
           <Link
             to={`/a/${album.slug}`}
-            className="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-colors duration-200 hover:bg-[#294432]"
+            className="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-colors duration-200 hover:bg-[#294432] dark:hover:bg-primary/85"
           >
             Enter password →
           </Link>
@@ -120,7 +120,7 @@ export default function HeroWall({
               <button
                 onClick={onDownloadAll}
                 disabled={downloadBusy}
-                className="shrink-0 cursor-pointer rounded-[22px] border border-[#9ab09c] bg-transparent px-4 py-2.5 text-sm font-medium text-primary transition-[background,box-shadow] duration-200 hover:bg-[#dce8dc] hover:shadow-[0_5px_12px_rgba(61,90,69,0.12)] disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:shadow-none"
+                className="shrink-0 cursor-pointer rounded-[22px] border border-[#9ab09c] dark:border-[#46564a] bg-transparent px-4 py-2.5 text-sm font-medium text-primary transition-[background,box-shadow] duration-200 hover:bg-[#dce8dc] hover:shadow-[0_5px_12px_rgba(61,90,69,0.12)] dark:hover:bg-white/10 dark:hover:shadow-none disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:shadow-none"
               >
                 {downloadLabel}
               </button>
