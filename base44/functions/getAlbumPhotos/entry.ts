@@ -44,16 +44,26 @@ export default async function(req) {
       return new Date(p.signed_until).getTime() - now < REFRESH_BUFFER_MS;
     });
 
+    // Signed URLs carry a JWT whose exp claim is the real expiry. The
+    // platform may cap lifetimes below what we request, so read the actual
+    // value instead of trusting SIGN_SECONDS — otherwise cached URLs could
+    // outlive their validity and serve dead links.
+    const actualExpiryMs = (url) => {
+      try {
+        const token = new URL(url).searchParams.get("token");
+        const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+        if (payload.exp) return payload.exp * 1000;
+      } catch { /* fall through to the conservative default */ }
+      return now + 3600 * 1000;
+    };
+
     if (stale.length > 0) {
-      // If the platform caps expiry below what we asked for, cached URLs
-      // would outlive their validity — so trust the shorter of the two.
-      const signedUntil = new Date(now + SIGN_SECONDS * 1000).toISOString();
       await Promise.all(stale.map(async (p) => {
         const [o, t, w] = await Promise.all([sign(p.file_uri), sign(p.thumb_uri), sign(p.web_uri)]);
         p.url_original = o;
         p.url_thumb = t;
         p.url_web = w;
-        p.signed_until = signedUntil;
+        p.signed_until = new Date(actualExpiryMs(o)).toISOString();
       }));
       await base44.asServiceRole.entities.Photo.bulkUpdate(stale.map(p => ({
         id: p.id,
