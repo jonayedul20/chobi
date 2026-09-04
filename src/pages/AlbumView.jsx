@@ -12,6 +12,7 @@ import AlbumChat from "@/components/AlbumChat";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import UploadPhotos from "@/components/admin/UploadPhotos";
 import { useAuth } from "@/lib/AuthContext";
+import { getClientId } from "@/lib/clientId";
 import { isAlbumExpired } from "@/lib/albums";
 
 function CenterBlock({ kicker, title, children }) {
@@ -77,7 +78,7 @@ export default function AlbumView() {
     let on = true;
     const pw = sessionStorage.getItem(`rawsnap_pw_${slug}`) ?? "";
     base44.functions
-      .invoke("getAlbumPhotos", { slug, password: pw })
+      .invoke("getAlbumPhotos", { slug, password: pw, client_id: getClientId() })
       .then(res => on && setPhotos(res.data?.photos ?? []))
       .catch(err => {
         if (!on) return;
@@ -151,6 +152,31 @@ export default function AlbumView() {
   const downloadLabel = zipping
     ? `Zipping ${Math.min(zipping.index + 1, zipping.total)}/${zipping.total}`
     : "Download all";
+
+  const toggleFavorite = async photoId => {
+    const flip = list =>
+      list?.map(p =>
+        p.id === photoId
+          ? { ...p, faved: !p.faved, fav_count: Math.max(0, (p.fav_count || 0) + (p.faved ? -1 : 1)) }
+          : p
+      );
+    // Optimistic: the heart responds instantly, the server settles the truth.
+    setPhotos(flip);
+    try {
+      const pw = album?.has_password ? sessionStorage.getItem(`rawsnap_pw_${album.slug}`) ?? "" : "";
+      const res = await base44.functions.invoke("toggleFavorite", {
+        photo_id: photoId,
+        client_id: getClientId(),
+        password: pw
+      });
+      const { faved, count } = res.data ?? {};
+      if (typeof faved === "boolean") {
+        setPhotos(list => list?.map(p => (p.id === photoId ? { ...p, faved, fav_count: count } : p)));
+      }
+    } catch {
+      setPhotos(flip); // roll the optimistic change back
+    }
+  };
 
   if (album === undefined) {
     return (
@@ -228,6 +254,7 @@ export default function AlbumView() {
         ) : (
           <div className="px-4 md:px-8 py-10">
             <PhotoWall photos={photos} onOpen={setLightbox} />
+
           </div>
         )}
         <div className="mt-auto">
@@ -302,6 +329,7 @@ export default function AlbumView() {
 
       {lightbox != null && photos?.length ? (
         <PhotoLightbox
+          onToggleFavorite={toggleFavorite}
           photos={photos}
           index={lightbox}
           onIndex={setLightbox}
