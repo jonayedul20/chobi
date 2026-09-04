@@ -11,7 +11,7 @@ export default function HeaderBar({ search = "", onSearch, showSearch = true }) 
   const initials = (user?.full_name || user?.email || "?").trim().slice(0, 2).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 animate-sage-rise flex h-[92px] items-center gap-6 md:gap-[34px] border-b border-[rgba(61,90,69,0.2)] bg-[rgba(230,236,230,0.74)] px-4 backdrop-blur-[18px] md:px-[74px]">
+    <header className="sticky top-0 z-30 animate-sage-rise flex h-[92px] items-center gap-6 md:gap-[34px] border-b border-[rgba(61,90,69,0.2)] bg-[rgba(230,236,230,0.74)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-[18px] md:px-[74px]">
       <Link
         to="/"
         className="shrink-0 font-display text-[29px] font-semibold leading-none tracking-[-1.4px] text-foreground"
