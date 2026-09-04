@@ -35,10 +35,16 @@ export default async function(req: Request): Promise<Response> {
       // guest — keep the provided display name
     }
 
+    // Denormalized read permission: only messages from albums anyone can open
+    // are readable through the entity API. Everything else goes through
+    // getAlbumMessages, which checks the album password first.
+    const isListed = album.is_public !== false && !album.has_password;
+
     await base44.asServiceRole.entities.ChatMessage.create({
       album_id: albumId,
       text,
-      author_name: authorName || "Guest"
+      author_name: authorName || "Guest",
+      is_listed: isListed
     });
 
     return Response.json({ ok: true });
