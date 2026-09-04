@@ -74,6 +74,18 @@ export default async function(req) {
       })));
     }
 
+    // Favorites ride along with the photo payload — counts for everyone,
+    // plus whether this particular browser has hearted each photo.
+    const clientId = body.client_id ? String(body.client_id).slice(0, 64) : "";
+    const favorites =
+      (await base44.asServiceRole.entities.Favorite.filter({ album_id: album.id }, "created_date", 1000)) ?? [];
+    const favCounts = {};
+    const mine = new Set();
+    for (const f of favorites) {
+      favCounts[f.photo_id] = (favCounts[f.photo_id] || 0) + 1;
+      if (clientId && f.client_id === clientId) mine.add(f.photo_id);
+    }
+
     const signed = photos.map(photo => ({
       id: photo.id,
       file_name: photo.file_name,
@@ -84,7 +96,9 @@ export default async function(req) {
       // Photos uploaded before derivatives existed fall back to it.
       signed_url: photo.url_original,
       thumb_url: photo.url_thumb || photo.url_web || photo.url_original,
-      web_url: photo.url_web || photo.url_original
+      web_url: photo.url_web || photo.url_original,
+      fav_count: favCounts[photo.id] || 0,
+      faved: mine.has(photo.id)
     }));
 
     return Response.json({
