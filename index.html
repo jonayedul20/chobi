@@ -5,16 +5,24 @@
     <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <script>
-      // Follow the visitor's system theme, set before first paint so there is
-      // no light-mode flash. Tailwind is configured with darkMode: "class".
+      // Theme before first paint, so there is no flash. A choice made with
+      // the header toggle (saved in localStorage) wins; otherwise follow the
+      // system setting. Tailwind is configured with darkMode: "class".
       (function () {
         try {
           var mq = window.matchMedia("(prefers-color-scheme: dark)");
+          var stored = function () {
+            try { return localStorage.getItem("chobi_theme"); } catch (e) { return null; }
+          };
           var apply = function () {
-            document.documentElement.classList.toggle("dark", mq.matches);
+            var s = stored();
+            var dark = s ? s === "dark" : mq.matches;
+            document.documentElement.classList.toggle("dark", dark);
           };
           apply();
-          mq.addEventListener("change", apply);
+          mq.addEventListener("change", function () {
+            if (!stored()) apply();
+          });
         } catch (e) {}
       })();
     </script>
