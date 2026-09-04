@@ -1,0 +1,43 @@
+{
+  "name": "Favorite",
+  "properties": {
+    "album_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "description": "Anonymous per-browser id from localStorage. Not an identity \u2014 just enough to make hearts toggle instead of stack.",
+      "type": "string"
+    },
+    "photo_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "photo_id",
+    "album_id",
+    "client_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "type": "object"
+}
