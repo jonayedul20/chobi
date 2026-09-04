@@ -11,7 +11,7 @@ export default function HeaderBar({ search = "", onSearch, showSearch = true }) 
   const initials = (user?.full_name || user?.email || "?").trim().slice(0, 2).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 animate-sage-rise flex h-[92px] items-center gap-6 md:gap-[34px] border-b border-[rgba(61,90,69,0.2)] bg-[rgba(230,236,230,0.74)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-[18px] md:px-[74px]">
+    <header className="sticky top-0 z-30 animate-sage-rise flex h-[92px] items-center gap-6 md:gap-[34px] border-b border-[rgba(61,90,69,0.2)] bg-[rgba(230,236,230,0.74)] dark:border-white/10 dark:bg-[rgba(18,22,19,0.82)] px-4 pt-[env(safe-area-inset-top)] backdrop-blur-[18px] md:px-[74px]">
       <Link
         to="/"
         className="shrink-0 font-display text-[29px] font-semibold leading-none tracking-[-1.4px] text-foreground"
@@ -26,13 +26,13 @@ export default function HeaderBar({ search = "", onSearch, showSearch = true }) 
             onChange={e => onSearch?.(e.target.value)}
             placeholder="Search the archive"
             aria-label="Search the archive"
-            className="h-[42px] rounded-[24px] border-[rgba(61,90,69,0.18)] bg-white/40 pl-11 pr-4 text-sm placeholder:text-muted-foreground transition-[background,box-shadow] duration-200 focus-visible:bg-white focus-visible:ring-0 focus-visible:shadow-[0_0_0_4px_rgba(61,90,69,0.16)]"
+            className="h-[42px] rounded-[24px] border-[rgba(61,90,69,0.18)] bg-white/40 dark:border-white/10 dark:bg-white/10 pl-11 pr-4 text-sm placeholder:text-muted-foreground transition-[background,box-shadow] duration-200 focus-visible:bg-white dark:focus-visible:bg-[#1c211d] focus-visible:ring-0 focus-visible:shadow-[0_0_0_4px_rgba(61,90,69,0.16)]"
           />
         </div>
       )}
       <div className="ml-auto flex items-center gap-5 md:gap-[26px]">
         {user ? (
-          <Avatar className="h-10 w-10 rounded-full border border-[rgba(61,90,69,0.24)]">
+          <Avatar className="h-10 w-10 rounded-full border border-[rgba(61,90,69,0.24)] dark:border-white/15">
             <AvatarFallback className="rounded-full bg-[#c8d7c9] text-[13px] font-semibold text-foreground">
               {initials}
             </AvatarFallback>
@@ -48,7 +48,7 @@ export default function HeaderBar({ search = "", onSearch, showSearch = true }) 
         {isAdmin && (
           <Link
             to="/admin"
-            className="inline-flex items-center gap-2 rounded-[24px] bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-[background,box-shadow,transform] duration-200 hover:bg-[#294432] hover:shadow-[0_8px_20px_rgba(36,64,45,0.18)] active:translate-y-px"
+            className="inline-flex items-center gap-2 rounded-[24px] bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-[background,box-shadow,transform] duration-200 hover:bg-[#294432] hover:shadow-[0_8px_20px_rgba(36,64,45,0.18)] dark:hover:bg-primary/85 dark:hover:shadow-none active:translate-y-px"
           >
             <Plus className="h-[15px] w-[15px]" /> New album
           </Link>
