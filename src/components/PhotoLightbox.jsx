@@ -21,7 +21,14 @@ export default function PhotoLightbox({ photos, index, onIndex, onClose }) {
         </button>
       </div>
       <div className="flex-1 flex items-center justify-center relative min-h-0 p-2">
-        <img src={photo.signed_url} alt={photo.file_name || "photo"} className="max-h-full max-w-full object-contain" />
+        {/* web_url is a ~1600px copy — plenty for a screen, a fraction of the
+            original's weight. The download button below still serves the original. */}
+        <img
+          src={photo.web_url || photo.signed_url}
+          alt={photo.file_name || "photo"}
+          decoding="async"
+          className="max-h-full max-w-full object-contain"
+        />
         {index > 0 && (
           <button
             onClick={() => onIndex(index - 1)}
