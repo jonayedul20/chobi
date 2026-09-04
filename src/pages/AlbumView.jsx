@@ -10,6 +10,8 @@ import CommandStrip from "@/components/CommandStrip";
 import PasswordGate from "@/components/PasswordGate";
 import AlbumChat from "@/components/AlbumChat";
 import PhotoLightbox from "@/components/PhotoLightbox";
+import UploadPhotos from "@/components/admin/UploadPhotos";
+import { useAuth } from "@/lib/AuthContext";
 import { isAlbumExpired } from "@/lib/albums";
 
 function CenterBlock({ kicker, title, children }) {
@@ -48,6 +50,8 @@ export default function AlbumView() {
   const [zipping, setZipping] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     let on = true;
@@ -199,15 +203,28 @@ export default function AlbumView() {
             <Loader2 className="w-7 h-7 animate-spin text-primary" />
           </div>
         ) : photos.length === 0 ? (
-          <div className="min-h-[40vh] flex flex-col items-center justify-center gap-3 px-4 py-16 text-center">
-            <div className="w-14 h-14 rounded-full bg-muted border border-border/60 flex items-center justify-center">
-              <ImageIcon className="w-6 h-6 text-muted-foreground" />
+          isAdmin ? (
+            // The person who owns this album shouldn't have to find the
+            // control room to fill it — upload right here.
+            <div className="min-h-[40vh] flex flex-col items-center justify-center gap-4 px-4 py-16">
+              <p className="font-display font-semibold text-xl tracking-tight">
+                Add photos to this album
+              </p>
+              <div className="w-full max-w-md">
+                <UploadPhotos albumId={album.id} onDone={() => setReloadKey(k => k + 1)} />
+              </div>
             </div>
-            <p className="font-display font-semibold text-xl tracking-tight">Photos coming soon</p>
-            <p className="text-sm text-muted-foreground">
-              This album hasn't been published yet. Check back shortly.
-            </p>
-          </div>
+          ) : (
+            <div className="min-h-[40vh] flex flex-col items-center justify-center gap-3 px-4 py-16 text-center">
+              <div className="w-14 h-14 rounded-full bg-muted border border-border/60 flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <p className="font-display font-semibold text-xl tracking-tight">Photos coming soon</p>
+              <p className="text-sm text-muted-foreground">
+                The photographer hasn't added photos yet. Check back soon.
+              </p>
+            </div>
+          )
         ) : (
           <div className="px-4 md:px-8 py-10">
             <PhotoWall photos={photos} onOpen={setLightbox} />
