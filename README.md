@@ -19,8 +19,10 @@ Built on [Base44](https://base44.com) (React + Vite frontend, Deno backend funct
 
 - Open the link, enter the password if there is one
 - Browse a masonry gallery, open any photo full screen
+- Heart favorite photos — counts are shared, no account needed
 - Download a single photo, or the whole album as one ZIP
 - Chat with other guests on the album — no account needed, just a display name
+- Light theme by default, with a persistent dark-mode switch in the header
 
 ---
 
@@ -48,10 +50,11 @@ base44/
 | `getAlbumPhotos` | Password-gated photo access with signed URLs |
 | `getAlbumMessages` | Password-gated chat history |
 | `postChatMessage` | Validates and stores a guest message |
+| `toggleFavorite` | Password-gated heart/unheart on a photo, keyed to an anonymous per-browser id |
 
 ### Data model
 
-`Album` (title, slug, password hash + salt, visibility, expiry) → `Photo` (original + derivative URIs, dimensions) and `ChatMessage` (text, author, visibility flag).
+`Album` (title, slug, password hash + salt, visibility, expiry) → `Photo` (original + derivative URIs, dimensions, cached signed URLs), `ChatMessage` (text, author, visibility flag), and `Favorite` (photo, album, anonymous client id).
 
 ---
 
@@ -61,7 +64,13 @@ This is the part of the project worth reading. Album access has to work for gues
 
 ### Photos are never public
 
-Originals are stored as private files. Guests never receive a durable URL — `getAlbumPhotos` verifies the password server-side and returns short-lived signed URLs valid for one hour. The frontend refreshes them at 50 minutes so a long browsing session doesn't break.
+Originals are stored as private files. Guests never receive a durable URL — `getAlbumPhotos` verifies the password server-side and returns signed URLs that expire on their own. The frontend refreshes them periodically so a long browsing session doesn't break.
+
+### Signed URLs are cached — the cost model demanded it
+
+On this platform, minting a signed URL is a metered operation. The first version of `getAlbumPhotos` signed every photo's URLs fresh for every viewer on every visit — measured live, about 30 credits per view of a 12-photo album. Projected onto one real event (a 200-photo album, 150 guests), a single gallery would have burned roughly six times the entire monthly allowance. The design could not serve its own use case.
+
+The fix: URLs are minted once with a 24-hour lifetime, cached on the `Photo` record, and shared by every viewer until they near expiry. The function reads the actual expiry from the JWT inside the URL rather than trusting the requested lifetime, so a platform-imposed cap can shorten the cache window but never serve dead links. Verified after deployment: repeat views return byte-identical cached URLs and zero new signing calls. Viewing cost now scales with photos per day instead of viewers per hour.
 
 ### Passwords never reach the browser
 
@@ -151,6 +160,7 @@ See [LICENSE](LICENSE) for the full terms.
 
 ## Known limitations
 
+- Favorites are optimistic in the UI (the heart responds before the server confirms, and rolls back on failure) but counts refresh only on page load — no realtime sync between viewers
 - `getAlbumPhotos` caps at 200 photos with no pagination
 - Password hashing is a single round of SHA-256 with a salt — adequate against casual guessing, weak against an attacker who obtains the database
 - Deleting an album removes its record and chat but leaves the uploaded files in storage
