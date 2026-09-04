@@ -1,62 +1,144 @@
-# Base44 Project
+# Chobi
 
-Use this repository to run and edit the app locally, then publish changes back through Base44.
+A private photo delivery platform for event photographers and photo booth operators. Clients get a share link to a gallery of their event photos — optionally password protected, optionally time limited — where guests can browse, chat, and download the full-resolution originals.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+Built on [Base44](https://base44.com) (React + Vite frontend, Deno backend functions, managed entities with row-level security).
 
-## Prerequisites
+---
 
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
-5. Install [Deno](https://docs.deno.com/runtime/getting_started/installation/) — the local Base44 backend runs on it.
+## What it does
 
-Run `base44 --help` (or see the [CLI reference](https://docs.base44.com/developers/references/cli/commands/introduction)) for the full command surface.
+**For the operator**
 
-## Run Locally
+- Create an album, get a unique share link
+- Upload full-resolution originals; web-sized copies are generated automatically
+- Set a password, mark the album public or link-only, set an expiry window
+- Manage every album from one control room
 
-Three commands, from the project root:
+**For guests**
 
-```bash
-base44 login   # one-time per machine
-base44 link    # one-time per clone
-base44 dev     # local backend + frontend together
+- Open the link, enter the password if there is one
+- Browse a masonry gallery, open any photo full screen
+- Download a single photo, or the whole album as one ZIP
+- Chat with other guests on the album — no account needed, just a display name
+
+---
+
+## Architecture
+
+```text
+src/
+  pages/           Home, AlbumView, AdminPanel, auth pages
+  components/      Gallery, lightbox, chat, password gate, admin cards
+  lib/             imageResize.js, zipDownload.js, albums.js
+base44/
+  entities/        Album, Photo, ChatMessage, User (schema + RLS)
+  functions/       Deno backend functions
+  shared/          albumSecurity.ts — hashing and expiry helpers
 ```
 
-Open the frontend URL that `base44 dev` prints (typically `http://localhost:5173`).
+### Backend functions
 
-Notes:
+| Function | Purpose |
+|---|---|
+| `createAlbum` / `updateAlbum` | Admin-only album management, password hashing |
+| `listAlbums` | Sanitized album list for the home page |
+| `getAlbumMeta` | Sanitized single album lookup by slug |
+| `verifyAlbumPassword` | Checks a guest's password against the stored hash |
+| `getAlbumPhotos` | Password-gated photo access with signed URLs |
+| `getAlbumMessages` | Password-gated chat history |
+| `postChatMessage` | Validates and stores a guest message |
+| `archiveExpiredAlbums` | Optional sweep that marks expired albums |
 
-- **Every fresh clone needs `base44 link`.** It writes `base44/.app.jsonc` (the app-id pointer), which is deliberately gitignored. Your app id is in the Builder URL (`app.base44.com/apps/<id>/...`); `base44 link --help` shows the non-interactive flags.
-- **`base44 dev` runs the frontend for you** (via `site.serveCommand` in this repo's `base44/config.jsonc`) — never run `npm run dev` yourself: alone it serves a UI with no backend behind it (`[base44] Proxy not enabled`, every `/api` call fails), and alongside `base44 dev` the second Vite silently takes the next port and you end up looking at the wrong one.
-- **The app must be published at least once for the UI to load under `base44 dev`.** The frontend boots by fetching app settings from the hosted app; before the first publish that fails and every page redirects to login. The local API works regardless.
-- Entities, functions, and auth run locally — entity data is **in-memory only**, wiped when `base44 dev` restarts. Everything else (Core integrations, OAuth login) is forwarded to your deployed app. Full breakdown: [Local development overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview).
+### Data model
 
-## Frontend Only, Hosted Backend
+`Album` (title, slug, password hash + salt, visibility, expiry) → `Photo` (original + derivative URIs, dimensions) and `ChatMessage` (text, author, visibility flag).
 
-To work on just the frontend against your app's live hosted backend:
+---
+
+## Security model
+
+This is the part of the project worth reading. Album access has to work for guests who have no account at all, which makes authorization interesting.
+
+### Photos are never public
+
+Originals are stored as private files. Guests never receive a durable URL — `getAlbumPhotos` verifies the password server-side and returns short-lived signed URLs valid for one hour. The frontend refreshes them at 50 minutes so a long browsing session doesn't break.
+
+### Passwords never reach the browser
+
+Album passwords are salted and hashed server-side. The hash and salt live on the `Album` record, which is readable only by admins. Every guest-facing endpoint returns a sanitized projection that omits them entirely.
+
+This was a fix, not an original design. The `Album` entity initially had open read permission and the home page queried it directly from the browser — which meant any visitor could pull every album record, including password hashes and link-only albums, straight from the API. The UI hid them; the data layer didn't. Read access is now admin-only, and guest-facing data flows through `listAlbums` and `getAlbumMeta`, which return only safe fields.
+
+### Chat visibility is denormalized on purpose
+
+Row-level security can express "this row is public." It can't express "this guest typed the right password five minutes ago," because that state only exists in the browser.
+
+So each `ChatMessage` carries an `is_listed` flag, set at write time from its album's actual state (public **and** no password). Read permission is `is_listed OR admin`. Messages from open albums stay readable — and keep working with realtime subscriptions. Messages from protected albums are unreadable through the entity API and are served only by `getAlbumMessages`, which checks the password first.
+
+`updateAlbum` re-syncs the flag across existing messages whenever an album's visibility changes. Without that, adding a password to an album would leave its old messages exposed.
+
+This also replaced a leak: a live feed on the public home page was querying all chat messages with no album filter, surfacing conversations from private, password-protected albums to anyone visiting the site.
+
+### Expiry is enforced live
+
+Every read path compares `expires_at` against the clock at request time rather than trusting a stored status field. The sweep workflow is bookkeeping and can be disabled without weakening access control.
+
+---
+
+## Image pipeline
+
+A 200-photo album of 8MB originals is 1.6GB. Serving that as gallery thumbnails is unusable on a phone, and the platform's image optimizer only works on public URLs — which these deliberately are not.
+
+So derivatives are generated in the browser at upload time (`src/lib/imageResize.js`):
+
+| Copy | Size | Used for |
+|---|---|---|
+| Thumbnail | ~800px | Gallery grid |
+| Web | ~1600px | Lightbox viewer |
+| Original | Untouched | Downloads |
+
+WebP where the browser supports it, JPEG otherwise. EXIF orientation is applied so portrait phone shots aren't rotated. Formats the browser can't decode (HEIC, for one) fall back to uploading the original alone, and every display path degrades to it gracefully.
+
+Real pixel dimensions are stored so the masonry grid can reserve space and avoid reflow.
+
+---
+
+## Download as ZIP
+
+"Download all" originally triggered one `<a download>` click per photo. Chrome blocks that after roughly ten, Safari after the first — on a real album the button silently did almost nothing.
+
+`src/lib/zipDownload.js` is a dependency-free ZIP writer. Entries are STORED uncompressed, since JPEGs don't deflate usefully and it avoids pulling in a compression library. Where the File System Access API is available it streams straight to disk, so memory stays flat regardless of album size; elsewhere it buffers with a size guard. Unreachable photos are skipped rather than failing the archive, and filenames are sanitized against path traversal and deduplicated.
+
+---
+
+## Running locally
+
+Requires Node and [Deno](https://docs.deno.com/runtime/getting_started/installation/).
 
 ```bash
-base44 dev --remote
+npm install
+npm install -g base44@latest
+
+base44 login   # once per machine
+base44 link    # once per clone
+base44 dev     # backend + frontend together
 ```
 
-⚠️ In this mode writes go to your app's **production data** — plain `base44 dev` keeps everything local.
+Open the URL `base44 dev` prints. Don't run `npm run dev` on its own — it serves a UI with no backend behind it.
 
-## Publish Your Changes
-
-After pushing your changes to git, open the Base44 dashboard and publish the app:
+Entity data under `base44 dev` is in-memory and resets on restart. Use `base44 dev --remote` to work against live data, with the obvious caution that applies.
 
 ```bash
-base44 dashboard open
+npm run build    # production build
+npm run lint     # eslint
 ```
 
-This repo syncs to Base44 through git, so publish from the dashboard rather than `base44 deploy` — a CLI deploy ships your local tree directly, bypassing the sync, and the deployed state silently diverges from the repo.
+---
 
-## Docs & Support
+## Known limitations
 
-GitHub integration: [https://docs.base44.com/developers/app-code/local-development/github](https://docs.base44.com/developers/app-code/local-development/github)
-
-Local development: [https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+- `getAlbumPhotos` caps at 200 photos with no pagination
+- Password hashing is a single round of SHA-256 with a salt — adequate against casual guessing, weak against an attacker who obtains the database
+- Deleting an album removes its record and chat but leaves the uploaded files in storage
+- The album password is held in `sessionStorage` and sent with each gated request; a short-lived token would be cleaner
