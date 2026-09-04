@@ -7,7 +7,7 @@ export default function AlbumCard({ album }) {
   return (
     <Link
       to={`/a/${album.slug}`}
-      className="block rounded-[22px] border border-[rgba(61,90,69,0.17)] bg-white/58 p-[14px] transition-[box-shadow,background] duration-[250ms] hover:bg-white hover:shadow-[0_14px_28px_rgba(45,76,53,0.12)]"
+      className="block rounded-[22px] border border-[rgba(61,90,69,0.17)] dark:border-white/10 bg-white/58 dark:bg-white/[0.06] p-[14px] transition-[box-shadow,background] duration-[250ms] hover:bg-white dark:hover:bg-white/[0.1] hover:shadow-[0_14px_28px_rgba(45,76,53,0.12)] dark:hover:shadow-none"
     >
       <h3 className="break-words px-2 pb-2 pt-2 text-[21px] font-semibold leading-[1.2] tracking-[-0.5px]">
         {album.title}
