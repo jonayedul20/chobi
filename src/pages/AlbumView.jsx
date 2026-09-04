@@ -89,25 +89,6 @@ export default function AlbumView() {
     };
   }, [unlocked, album?.id]);
 
-  useEffect(() => {
-    if (!album) return;
-    let on = true;
-    base44.entities.ChatMessage.filter({ album_id: album.id }, "created_date", 500)
-      .then(list => on && setMsgCount(list?.length ?? 0))
-      .catch(() => {});
-    const unsub = base44.entities.ChatMessage.subscribe(ev => {
-      if (ev.data?.album_id !== album.id) return;
-      setMsgCount(prev => {
-        const cur = prev ?? 0;
-        return ev.type === "delete" ? Math.max(0, cur - 1) : cur + 1;
-      });
-    });
-    return () => {
-      on = false;
-      if (unsub) unsub();
-    };
-  }, [album?.id]);
-
   const unlock = async pw => {
     setBusy(true);
     setGateError("");
@@ -217,7 +198,12 @@ export default function AlbumView() {
           </p>
         </div>
         <div className="flex-1 min-h-0">
-          <AlbumChat albumId={album.id} />
+          <AlbumChat
+            albumId={album.id}
+            slug={album.slug}
+            hasPassword={album.has_password}
+            onCount={setMsgCount}
+          />
         </div>
       </aside>
 
@@ -250,7 +236,12 @@ export default function AlbumView() {
               </button>
             </div>
             <div className="flex-1 min-h-0">
-              <AlbumChat albumId={album.id} />
+              <AlbumChat
+                albumId={album.id}
+                slug={album.slug}
+                hasPassword={album.has_password}
+                onCount={setMsgCount}
+              />
             </div>
           </div>
         </div>
