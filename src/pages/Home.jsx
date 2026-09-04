@@ -83,7 +83,7 @@ export default function Home() {
           onOpen={setLightbox}
           onDownloadAll={heroPhotos?.length ? downloadAll : undefined}
         />
-        <ArchiveSidebar albums={visible} user={user} />
+        <ArchiveSidebar albums={visible} />
       </main>
       <section
         id="archive"
