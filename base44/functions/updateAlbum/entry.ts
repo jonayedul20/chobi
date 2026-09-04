@@ -32,6 +32,24 @@ export default async function(req) {
     }
 
     const album = await base44.entities.Album.update(albumId, updates);
+
+    // An album's visibility decides who may read its chat. Re-sync the
+    // denormalized flag on existing messages — otherwise adding a password
+    // leaves old messages readable, and removing one leaves them stranded.
+    const shouldList = album.is_public !== false && !album.has_password;
+    const messages =
+      (await base44.asServiceRole.entities.ChatMessage.filter(
+        { album_id: albumId },
+        "created_date",
+        500
+      )) ?? [];
+    const stale = messages.filter(m => !!m.is_listed !== shouldList);
+    if (stale.length > 0) {
+      await base44.asServiceRole.entities.ChatMessage.bulkUpdate(
+        stale.map(m => ({ id: m.id, is_listed: shouldList }))
+      );
+    }
+
     return Response.json({ album });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
