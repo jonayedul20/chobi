@@ -132,7 +132,7 @@ export default function HeroWall({
           <ImageIcon className="h-6 w-6 text-muted-foreground" />
           <h3 className="text-lg font-semibold">Photos coming soon</h3>
           <p className="text-sm text-muted-foreground">
-            This album hasn't been published yet. Check back shortly.
+            The photographer hasn't added photos yet. Check back soon.
           </p>
         </div>
       )}
