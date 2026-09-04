@@ -95,8 +95,10 @@ export default function HeroWall({ album, photos, loading, onOpen, onDownloadAll
                 )}
               >
                 <Image
-                  src={p.signed_url}
+                  src={p.thumb_url || p.signed_url}
                   alt={p.file_name || "Album photo"}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full transition-transform duration-500 group-hover:scale-[1.03]"
                 />
               </button>
