@@ -10,10 +10,18 @@ export default function PhotoWall({ photos, onOpen }) {
           className="mb-4 block w-full rounded-2xl overflow-hidden group text-left cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <img
-            src={p.signed_url}
+            // thumb_url is a small web copy; it falls back to the original on
+            // photos uploaded before derivatives existed.
+            src={p.thumb_url || p.signed_url}
             alt={p.file_name || "photo"}
             loading="lazy"
-            className="w-full block transition-transform duration-500 group-hover:scale-[1.03]"
+            decoding="async"
+            width={p.width || undefined}
+            height={p.height || undefined}
+            // Reserving the real aspect ratio stops the masonry grid from
+            // reflowing as each image arrives.
+            style={p.width && p.height ? { aspectRatio: `${p.width} / ${p.height}` } : undefined}
+            className="w-full block bg-muted transition-transform duration-500 group-hover:scale-[1.03]"
           />
         </button>
       ))}
