@@ -48,7 +48,6 @@ base44/
 | `getAlbumPhotos` | Password-gated photo access with signed URLs |
 | `getAlbumMessages` | Password-gated chat history |
 | `postChatMessage` | Validates and stores a guest message |
-| `archiveExpiredAlbums` | Optional sweep that marks expired albums |
 
 ### Data model
 
@@ -82,7 +81,11 @@ This also replaced a leak: a live feed on the public home page was querying all 
 
 ### Expiry is enforced live
 
-Every read path compares `expires_at` against the clock at request time rather than trusting a stored status field. The sweep workflow is bookkeeping and can be disabled without weakening access control.
+Every read path compares `expires_at` against the clock at request time rather than trusting a stored status field.
+
+The app originally shipped a scheduled `archiveExpiredAlbums` function that swept expired albums every 30 minutes and flipped a stored `status`. A security scan flagged it: every backend function gets a public URL, and this one did service-role bulk writes with no caller check, so anyone could invoke it.
+
+The usual fixes are a shared secret or requiring login. Neither applied here, because the function wasn't needed at all — expiry is evaluated live on every request, so the stored field it maintained was redundant. It was deleted along with its workflow rather than secured. Removing an endpoint is a more complete fix than guarding one.
 
 ---
 
