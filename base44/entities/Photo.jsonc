@@ -1,17 +1,33 @@
 {
   "name": "Photo",
-  "type": "object",
   "properties": {
     "album_id": {
-      "type": "string"
-    },
-    "file_uri": {
       "type": "string"
     },
     "file_name": {
       "type": "string"
     },
+    "file_uri": {
+      "description": "The untouched original upload. Used for downloads only.",
+      "type": "string"
+    },
+    "height": {
+      "description": "Original pixel height, used to reserve layout space.",
+      "type": "number"
+    },
     "size_bytes": {
+      "type": "number"
+    },
+    "thumb_uri": {
+      "description": "Downscaled copy (~800px) used for gallery grids. Empty on photos uploaded before derivatives existed.",
+      "type": "string"
+    },
+    "web_uri": {
+      "description": "Downscaled copy (~1600px) used for the lightbox viewer.",
+      "type": "string"
+    },
+    "width": {
+      "description": "Original pixel width, used to reserve layout space.",
       "type": "number"
     }
   },
@@ -19,6 +35,7 @@
     "album_id",
     "file_uri"
   ],
+  "type": "object",
   "rls": {
     "read": {
       "user_condition": {
