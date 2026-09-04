@@ -30,7 +30,8 @@ export default function HeaderBar({ search = "", onSearch, showSearch = true }) 
           />
         </div>
       )}
-      <div className="ml-auto flex items-center gap-5 md:gap-[26px]">
+      <div className="ml-auto flex items-center gap-3 md:gap-[18px]">
+        <ThemeToggle />
         {user ? (
           <Avatar className="h-10 w-10 rounded-full border border-[rgba(61,90,69,0.24)] dark:border-white/15">
             <AvatarFallback className="rounded-full bg-[#c8d7c9] text-[13px] font-semibold text-foreground">
