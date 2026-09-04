@@ -3,7 +3,7 @@ import { ArrowDown, ImageIcon, Lock, MessageCircle } from "lucide-react";
 import { Image } from "@/components/ui/image";
 
 const PANEL =
-  "rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)]";
+  "rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)] dark:border-white/10 dark:bg-[rgba(26,31,27,0.7)] dark:shadow-none";
 
 const HERO_IMAGE =
   "https://media.base44.com/images/public/6a99f31ba5160b3896740f0a/3ae8279f2_generated_adf429f0.jpg";
@@ -59,7 +59,7 @@ export default function LandingHero() {
           </p>
           <a
             href="#archive"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#f5f8f4] px-6 py-3 text-sm font-semibold text-[#1e3227] transition-colors duration-200 hover:bg-white"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#f5f8f4] dark:bg-white/10 px-6 py-3 text-sm font-semibold text-[#1e3227] dark:text-foreground transition-colors duration-200 hover:bg-white dark:hover:bg-white/20"
           >
             Explore the archive <ArrowDown className="h-4 w-4" />
           </a>
@@ -68,7 +68,7 @@ export default function LandingHero() {
       <div className="mx-4 mt-6 grid grid-cols-1 gap-6 md:mx-[74px] md:grid-cols-3">
         {FEATURES.map(f => (
           <div key={f.title} className={`${PANEL} flex items-start gap-4 p-6`}>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d6e3d6]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d6e3d6] dark:bg-[#2a352c]">
               <f.icon className="h-5 w-5 text-primary" />
             </div>
             <div>
