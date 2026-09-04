@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Lock } from "lucide-react";
 
 const PANEL =
-  "rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)]";
+  "rounded-[28px] border border-[rgba(61,90,69,0.2)] bg-[rgba(250,252,249,0.64)] backdrop-blur shadow-[0_12px_34px_rgba(46,77,55,0.08)] dark:border-white/10 dark:bg-[rgba(26,31,27,0.7)] dark:shadow-none";
 
 export default function ArchiveSidebar({ albums }) {
   return (
@@ -22,7 +22,7 @@ export default function ArchiveSidebar({ albums }) {
           <li key={a.id}>
             <Link
               to={`/a/${a.slug}`}
-              className="flex items-center justify-between gap-2 rounded-[18px] border border-[rgba(61,90,69,0.17)] px-4 py-2.5 text-sm font-medium transition-[background,box-shadow] duration-200 hover:bg-white hover:shadow-[0_14px_28px_rgba(45,76,53,0.12)]"
+              className="flex items-center justify-between gap-2 rounded-[18px] border border-[rgba(61,90,69,0.17)] dark:border-white/10 px-4 py-2.5 text-sm font-medium transition-[background,box-shadow] duration-200 hover:bg-white hover:shadow-[0_14px_28px_rgba(45,76,53,0.12)] dark:hover:bg-white/10 dark:hover:shadow-none"
             >
               <span className="truncate">{a.title}</span>
               {a.has_password && <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
