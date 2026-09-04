@@ -43,26 +43,28 @@
     --sidebar-ring: 211 100% 45%;
   }
 
+  /* Dark Sage — the same palette family as light mode, inverted. The old
+     block here was left over from an abandoned Apple-blue theme. */
   .dark {
-    --background: 240 6% 7%;
-    --foreground: 0 0% 96%;
-    --card: 240 5% 11%;
-    --card-foreground: 0 0% 96%;
-    --popover: 240 5% 11%;
-    --popover-foreground: 0 0% 96%;
-    --primary: 211 100% 55%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 96%;
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 4% 65%;
-    --accent: 211 60% 18%;
-    --accent-foreground: 211 100% 75%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 150 9% 8%;
+    --foreground: 120 12% 88%;
+    --card: 150 8% 12%;
+    --card-foreground: 120 12% 88%;
+    --popover: 150 8% 12%;
+    --popover-foreground: 120 12% 88%;
+    --primary: 134 18% 64%;
+    --primary-foreground: 150 20% 10%;
+    --secondary: 150 6% 17%;
+    --secondary-foreground: 120 12% 88%;
+    --muted: 150 6% 15%;
+    --muted-foreground: 130 8% 60%;
+    --accent: 148 9% 19%;
+    --accent-foreground: 134 18% 70%;
+    --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 20%;
-    --input: 240 4% 20%;
-    --ring: 211 100% 55%;
+    --border: 150 6% 22%;
+    --input: 150 6% 22%;
+    --ring: 134 18% 64%;
     --chart-1: 211 100% 55%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
