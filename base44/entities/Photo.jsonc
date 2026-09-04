@@ -15,11 +15,28 @@
       "description": "Original pixel height, used to reserve layout space.",
       "type": "number"
     },
+    "signed_until": {
+      "description": "When the cached signed URLs expire. getAlbumPhotos re-signs when this is near.",
+      "format": "date-time",
+      "type": "string"
+    },
     "size_bytes": {
       "type": "number"
     },
     "thumb_uri": {
       "description": "Downscaled copy (~800px) used for gallery grids. Empty on photos uploaded before derivatives existed.",
+      "type": "string"
+    },
+    "url_original": {
+      "description": "Cached signed URL for the original. Signing costs a credit per call, so URLs are minted once and shared by every viewer until signed_until.",
+      "type": "string"
+    },
+    "url_thumb": {
+      "description": "Cached signed URL for the thumbnail.",
+      "type": "string"
+    },
+    "url_web": {
+      "description": "Cached signed URL for the web copy.",
       "type": "string"
     },
     "web_uri": {
